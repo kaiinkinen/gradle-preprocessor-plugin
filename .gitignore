@@ -13,7 +13,9 @@
 out/
 build/
 target/
+.gradle/
 
 # IDEA files
 *.iml
 .idea/
+
