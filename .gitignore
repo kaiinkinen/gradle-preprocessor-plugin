@@ -1,6 +1,19 @@
-*.class
-
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# Generated and temp files 
+*.class
+\#*
+*.tmp
+*~ 
+
+# Output dirs
+out/
+build/
+target/
+
+# IDEA files
+*.iml
+.idea/
