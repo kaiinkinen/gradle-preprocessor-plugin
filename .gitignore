@@ -17,5 +17,7 @@ target/
 
 # IDEA files
 *.iml
+*.ipr
+*.iws
 .idea/
 
