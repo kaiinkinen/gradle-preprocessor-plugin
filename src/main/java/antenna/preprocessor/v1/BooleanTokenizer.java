@@ -34,171 +34,162 @@ class BooleanTokenizer {
     /**
      * Token code for end-of-input.
      */
-	public static final int TYPE_STOP = 0;
-    
+    public static final int TYPE_STOP = 0;
+
     /**
      * Token code for an identifier.
      */
-	public static final int TYPE_ID = 1;
-    
+    public static final int TYPE_ID = 1;
+
     /**
      * Token code for a left (opening) parenthesis.
      */
-	public static final int TYPE_LPAR = 2;
-    
+    public static final int TYPE_LPAR = 2;
+
     /**
      * Token code for a right (closing) parenthesis.
      */
-	public static final int TYPE_RPAR = 3;
-    
+    public static final int TYPE_RPAR = 3;
+
     /**
      * Token code for the boolean "and" operator "&&".
      */
-	public static final int TYPE_AND = 4;
+    public static final int TYPE_AND = 4;
 
     /**
      * Token code for the boolean "or" operator "||".
      */
-	public static final int TYPE_OR = 5;
+    public static final int TYPE_OR = 5;
 
     /**
      * Token code for the boolean "exclusive or" operator "^".
      */
-	public static final int TYPE_XOR = 6;
+    public static final int TYPE_XOR = 6;
 
     /**
      * Token code for the negation operator "!".
      */
-	public static final int TYPE_NOT = 7;
+    public static final int TYPE_NOT = 7;
 
-	/**
-	 * Holds the source expression to be scanned.
-	 */
-	private String sourceText;
-    
+    /**
+     * Holds the source expression to be scanned.
+     */
+    private String sourceText;
+
     /**
      * Holds the current position inside the source, that is,
      * the next character to be consumed.
      */
-	private int sourcePos;
-    
+    private int sourcePos;
+
     /**
      * Holds the type of the token most recently scanned.
      */
-	private int tokenType;
-    
+    private int tokenType;
+
     /**
      * Holds the position of the token most recently scanned.
      */
-	private int tokenPos;
+    private int tokenPos;
 
-	/**
-	 * Creates a new scanner for the given expression.
-	 */
-	public BooleanTokenizer(String expr) {
-		sourceText = expr + " ";
-		sourcePos = 0;
-		tokenType = -1;
-		tokenPos = 0;
-	}
+    /**
+     * Creates a new scanner for the given expression.
+     */
+    public BooleanTokenizer(String expr) {
+        sourceText = expr + " ";
+        sourcePos = 0;
+        tokenType = -1;
+        tokenPos = 0;
+    }
 
-	/**
-	 * Ignores whitespace and tab characters beginning at the
-	 * current position.
-	 */
-	private void skipBlanks() {
-		while (true) {
-			if (sourcePos >= sourceText.length())
-				break;
-			char c = sourceText.charAt(sourcePos);
-			if ((c != ' ') && (c != '\t'))
-				break;
-			sourcePos++;
-		}
-	}
+    /**
+     * Ignores whitespace and tab characters beginning at the
+     * current position.
+     */
+    private void skipBlanks() {
+        while (true) {
+            if (sourcePos >= sourceText.length())
+                break;
+            char c = sourceText.charAt(sourcePos);
+            if ((c != ' ') && (c != '\t'))
+                break;
+            sourcePos++;
+        }
+    }
 
-	/**
-	 * Skips the current token and scans the next one, returning
-	 * the token code of the new token.
-	 */
-	public int nextToken() throws PreprocessorException {
-		skipBlanks();
-		tokenPos = sourcePos;
+    /**
+     * Skips the current token and scans the next one, returning
+     * the token code of the new token.
+     */
+    public int nextToken() throws PreprocessorException {
+        skipBlanks();
+        tokenPos = sourcePos;
 
-		/* Check for end of source */
-		if (sourcePos >= sourceText.length()) {
-			tokenType = TYPE_STOP;
-			return tokenType;
-		}
+        /* Check for end of source */
+        if (sourcePos >= sourceText.length()) {
+            tokenType = TYPE_STOP;
+            return tokenType;
+        }
 
-		/* Check for other kinds of tokens */
-		char c = sourceText.charAt(sourcePos);
-		if (Character.isJavaIdentifierStart(c)) {
-			tokenType = TYPE_ID;
-			sourcePos++;
-			while (isIdentifierPart(sourceText.charAt(sourcePos))) {
-				sourcePos++;
-			}
-		}
-		else if (c == '(') {
-			tokenType = TYPE_LPAR;
-			sourcePos++;
-		}
-		else if (c == ')') {
-			tokenType = TYPE_RPAR;
-			sourcePos++;
-		}
-		else if (c == '&') {
-			tokenType = TYPE_AND;
-			sourcePos++;
-			if (sourceText.charAt(sourcePos) == '&') {
-				sourcePos++;
-			}
-		}
-		else if (c == '|') {
-			tokenType = TYPE_OR;
-			sourcePos++;
-			if (sourceText.charAt(sourcePos) == '|') {
-				sourcePos++;
-			}
-		}
-		else if (c == '^') {
-			tokenType = TYPE_XOR;
-			sourcePos++;
-		}
-		else if (c == '!') {
-			tokenType = TYPE_NOT;
-			sourcePos++;
-		}
-		else
-			throw new PreprocessorException("Syntax Error");
+        /* Check for other kinds of tokens */
+        char c = sourceText.charAt(sourcePos);
+        if (Character.isJavaIdentifierStart(c)) {
+            tokenType = TYPE_ID;
+            sourcePos++;
+            while (isIdentifierPart(sourceText.charAt(sourcePos))) {
+                sourcePos++;
+            }
+        } else if (c == '(') {
+            tokenType = TYPE_LPAR;
+            sourcePos++;
+        } else if (c == ')') {
+            tokenType = TYPE_RPAR;
+            sourcePos++;
+        } else if (c == '&') {
+            tokenType = TYPE_AND;
+            sourcePos++;
+            if (sourceText.charAt(sourcePos) == '&') {
+                sourcePos++;
+            }
+        } else if (c == '|') {
+            tokenType = TYPE_OR;
+            sourcePos++;
+            if (sourceText.charAt(sourcePos) == '|') {
+                sourcePos++;
+            }
+        } else if (c == '^') {
+            tokenType = TYPE_XOR;
+            sourcePos++;
+        } else if (c == '!') {
+            tokenType = TYPE_NOT;
+            sourcePos++;
+        } else
+            throw new PreprocessorException("Syntax Error");
 
-		return tokenType;
-	}
+        return tokenType;
+    }
 
-	private boolean isIdentifierPart(char c)
-	{
-		return Character.isJavaIdentifierPart(c) || c == '\\' || c == '/';
-	}
+    private boolean isIdentifierPart(char c) {
+        return Character.isJavaIdentifierPart(c) || c == '\\' || c == '/';
+    }
 
-	/**
-	 * Returns the token code of the token most recently
-	 * scanned.
-	 */
-	public int getTokenType() {
-		return tokenType;
-	}
+    /**
+     * Returns the token code of the token most recently
+     * scanned.
+     */
+    public int getTokenType() {
+        return tokenType;
+    }
 
-	/**
-	 * Returns the text of the token most recently scanned.
-	 * Usually called to find out the name of an identifier.
-	 */
-	public String getTokenText() {
-		if (tokenType == TYPE_STOP) {
-			return "";
-		}
-		else {
-			return sourceText.substring(tokenPos, sourcePos);
-		}
-	}
+    /**
+     * Returns the text of the token most recently scanned.
+     * Usually called to find out the name of an identifier.
+     */
+    public String getTokenText() {
+        if (tokenType == TYPE_STOP) {
+            return "";
+        } else {
+            return sourceText.substring(tokenPos, sourcePos);
+        }
+    }
 }

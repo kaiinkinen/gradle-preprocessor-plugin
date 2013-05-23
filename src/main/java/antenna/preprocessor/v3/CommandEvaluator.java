@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -12,16 +12,11 @@
  */
 package antenna.preprocessor.v3;
 
-import java.util.StringTokenizer;
-import java.util.Vector;
-
+import antenna.preprocessor.v3.parser.*;
 import org.antlr.runtime.RecognitionException;
 
-import antenna.preprocessor.v3.parser.APPLexer;
-import antenna.preprocessor.v3.parser.Define;
-import antenna.preprocessor.v3.parser.Defines;
-import antenna.preprocessor.v3.parser.Literal;
-import antenna.preprocessor.v3.parser.PPLineAST;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * @author Omry Yadan
@@ -29,17 +24,17 @@ import antenna.preprocessor.v3.parser.PPLineAST;
 public class CommandEvaluator {
 
     /**
-     * 
+     *
      */
     private static final String DEBUG_KEY = "DEBUG";
 
     /**
-     * 
+     *
      */
     public static final int UNKNOWN_LINE = -1;
 
     /**
-     * 
+     *
      */
     private final Defines m_defines;
 
@@ -59,7 +54,7 @@ public class CommandEvaluator {
      * @throws PPException
      */
     public boolean evaluate(PPLine ppl, PPLineAST ast,
-            IPreprocessorListener listener) throws Exception, PPException {
+                            IPreprocessorListener listener) throws Exception, PPException {
         Eval eval = new Eval(ppl, ast, listener);
         return evaluate(eval);
     }
@@ -75,106 +70,106 @@ public class CommandEvaluator {
 
         switch (type) {
 
-        case APPLexer.IFDEF:
-        case APPLexer.ELIFDEF:
-            return evalDefined(ast.getNextSibling());
+            case APPLexer.IFDEF:
+            case APPLexer.ELIFDEF:
+                return evalDefined(ast.getNextSibling());
 
-        case APPLexer.IF:
-        case APPLexer.ELIF:
-        case APPLexer.CONDITION:
-            return evaluate(ast.getNextSibling());
+            case APPLexer.IF:
+            case APPLexer.ELIF:
+            case APPLexer.CONDITION:
+                return evaluate(ast.getNextSibling());
 
-        case APPLexer.DEBUG:
-        case APPLexer.MDEBUG:
-            return evaluateDebug(ast);
+            case APPLexer.DEBUG:
+            case APPLexer.MDEBUG:
+                return evaluateDebug(ast);
 
-        case APPLexer.IFNDEF:
-        case APPLexer.ELIFNDEF:
-            return !evaluate(ast.getNextSibling());
+            case APPLexer.IFNDEF:
+            case APPLexer.ELIFNDEF:
+                return !evaluate(ast.getNextSibling());
 
-        case APPLexer.SYMBOL: {
+            case APPLexer.SYMBOL: {
 
-            Define define = m_defines.getDefine(ast.getText());
+                Define define = m_defines.getDefine(ast.getText());
 
-            if (define == null) {
-                return false; // if not defined, assume false.
+                if (define == null) {
+                    return false; // if not defined, assume false.
+                }
+                // if is a boolean, return it's value.
+                if (define.getLiteral().isBoolean()) {
+                    return define.getLiteral().isTrue();
+                }
+                // else (since it's defined) return true.
+                return true;
+
             }
-            // if is a boolean, return it's value.
-            if (define.getLiteral().isBoolean()) {
-                return define.getLiteral().isTrue();
+            case APPLexer.EQ: {
+                return EQ(ast);
             }
-            // else (since it's defined) return true.
-            return true;
 
-        }
-        case APPLexer.EQ: {
-            return EQ(ast);
-        }
-
-        case APPLexer.NEQ: {
-            return NEQ(ast);
-        }
-
-        case APPLexer.GT: {
-            return GT(ast);
-        }
-
-        case APPLexer.LT: {
-            return LT(ast);
-        }
-
-        case APPLexer.GTE: {
-            return GTE(ast);
-        }
-
-        case APPLexer.LTE: {
-            return LTE(ast);
-        }
-
-        case APPLexer.AT: {
-            return AT(ast);
-        }
-
-        case APPLexer.AND: {
-            Eval left = ast.getFirstChild();
-            Eval right = left.getNextSibling();
-            return evaluate(left) && evaluate(right);
-        }
-
-        case APPLexer.OR: {
-            Eval left = ast.getFirstChild();
-            Eval right = left.getNextSibling();
-            return evaluate(left) || evaluate(right);
-        }
-
-        case APPLexer.XOR: {
-            Eval left = ast.getFirstChild();
-            Eval right = left.getNextSibling();
-            return evaluate(left) ^ evaluate(right);
-        }
-
-        case APPLexer.NOT: {
-            return !evaluate(ast.getFirstChild());
-        }
-
-        case APPLexer.DEFINE: {
-            m_defines.define(ast.getNextSibling().ast);
-            return true;
-        }
-
-        case APPLexer.UNDEFINE: {
-            String def = ast.getNextSibling().getText();
-            boolean removed = m_defines.undefine(def);
-
-            if (!removed) {
-                System.err.println("Warning: attempting to undefine \"" + def
-                        + "\" which is not defined");
+            case APPLexer.NEQ: {
+                return NEQ(ast);
             }
-            return true;
-        }
 
-        default:
-            break;
+            case APPLexer.GT: {
+                return GT(ast);
+            }
+
+            case APPLexer.LT: {
+                return LT(ast);
+            }
+
+            case APPLexer.GTE: {
+                return GTE(ast);
+            }
+
+            case APPLexer.LTE: {
+                return LTE(ast);
+            }
+
+            case APPLexer.AT: {
+                return AT(ast);
+            }
+
+            case APPLexer.AND: {
+                Eval left = ast.getFirstChild();
+                Eval right = left.getNextSibling();
+                return evaluate(left) && evaluate(right);
+            }
+
+            case APPLexer.OR: {
+                Eval left = ast.getFirstChild();
+                Eval right = left.getNextSibling();
+                return evaluate(left) || evaluate(right);
+            }
+
+            case APPLexer.XOR: {
+                Eval left = ast.getFirstChild();
+                Eval right = left.getNextSibling();
+                return evaluate(left) ^ evaluate(right);
+            }
+
+            case APPLexer.NOT: {
+                return !evaluate(ast.getFirstChild());
+            }
+
+            case APPLexer.DEFINE: {
+                m_defines.define(ast.getNextSibling().ast);
+                return true;
+            }
+
+            case APPLexer.UNDEFINE: {
+                String def = ast.getNextSibling().getText();
+                boolean removed = m_defines.undefine(def);
+
+                if (!removed) {
+                    System.err.println("Warning: attempting to undefine \"" + def
+                            + "\" which is not defined");
+                }
+                return true;
+            }
+
+            default:
+                break;
 
         }
 
@@ -357,31 +352,31 @@ public class CommandEvaluator {
      */
     private Literal[] values(Eval ast, boolean warnIfNotDefined)
             throws Exception {
-        
+
         int type = ast.getType();
         String text = ast.getText();
-        
+
         switch (type) {
 
-        case APPLexer.SYMBOL: {
-            Define v = m_defines.getDefine(text);
-            
-            if (v != null) {
-                Literal lit = v.getLiteral();
-                return getValues(lit.getValue());
-            } else {
-                ast.warning(emptySymbolWarning(text));
-                return literals(new Literal(Literal.STRING, ""));
-            }
-        }
-        
-        case APPLexer.STRING: {
-            String str = text;
-            return getValues(str);
-        }
+            case APPLexer.SYMBOL: {
+                Define v = m_defines.getDefine(text);
 
-        case APPLexer.NUMBER:
-            return literals(new Literal(type, text));
+                if (v != null) {
+                    Literal lit = v.getLiteral();
+                    return getValues(lit.getValue());
+                } else {
+                    ast.warning(emptySymbolWarning(text));
+                    return literals(new Literal(Literal.STRING, ""));
+                }
+            }
+
+            case APPLexer.STRING: {
+                String str = text;
+                return getValues(str);
+            }
+
+            case APPLexer.NUMBER:
+                return literals(new Literal(type, text));
         }
 
         throw new RecognitionException();
@@ -422,21 +417,21 @@ public class CommandEvaluator {
 
         switch (type) {
 
-        case APPLexer.SYMBOL: {
+            case APPLexer.SYMBOL: {
 
-            Define v = m_defines.getDefine(text);
+                Define v = m_defines.getDefine(text);
 
-            if (v != null) {
-                return v.getLiteral();
-            } else {
-                ast.warning(emptySymbolWarning(text));
-                return new Literal(Literal.STRING, "");
+                if (v != null) {
+                    return v.getLiteral();
+                } else {
+                    ast.warning(emptySymbolWarning(text));
+                    return new Literal(Literal.STRING, "");
+                }
             }
-        }
 
-        case APPLexer.STRING:
-        case APPLexer.NUMBER:
-            return new Literal(type, text);
+            case APPLexer.STRING:
+            case APPLexer.NUMBER:
+                return new Literal(type, text);
 
         }
 
@@ -452,7 +447,7 @@ public class CommandEvaluator {
      * @return
      */
     private Literal[] literals(Literal value) {
-        return new Literal[] { value };
+        return new Literal[]{value};
     }
 
     /**
@@ -512,7 +507,7 @@ public class CommandEvaluator {
     }
 
     /**
-     * 
+     *
      */
     private static class Eval {
         public PPLine ppl;

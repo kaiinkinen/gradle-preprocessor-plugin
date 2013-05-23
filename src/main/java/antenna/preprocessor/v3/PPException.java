@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -41,7 +41,7 @@ public class PPException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message.
-     * 
+     *
      * @param message the detail message
      */
     public PPException(String message) {
@@ -50,9 +50,9 @@ public class PPException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
-     * 
+     *
      * @param message the detail message
-     * @param cause the cause. (A null value is permitted, and indicates that
+     * @param cause   the cause. (A null value is permitted, and indicates that
      *                the cause is nonexistent or unknown.)
      */
     public PPException(String message, Throwable cause) {
@@ -62,9 +62,9 @@ public class PPException extends Exception {
     /**
      * Constructs a new exception with the specified detail message and file
      * where it occurred.
-     * 
+     *
      * @param message the detail message
-     * @param file the file being preprocessed when the exception was thrown
+     * @param file    the file being preprocessed when the exception was thrown
      */
     public PPException(String message, File file) {
         this(message, file, null, UNKNOWN_LINE);
@@ -73,9 +73,9 @@ public class PPException extends Exception {
     /**
      * Constructs a new exception with the specified detail message, file and
      * line where it occurred.
-     * 
-     * @param message the detail message
-     * @param file the file being preprocessed when the exception was thrown
+     *
+     * @param message    the detail message
+     * @param file       the file being preprocessed when the exception was thrown
      * @param lineNumber the line where the error occurred
      */
     public PPException(String message, File file, int lineNumber) {
@@ -85,10 +85,10 @@ public class PPException extends Exception {
     /**
      * Constructs a new exception with the specified detail message, cause and
      * file where it occurred.
-     * 
+     *
      * @param message the detail message
-     * @param file the file being preprocessed when the exception was thrown
-     * @param cause the cause. (A null value is permitted, and indicates that
+     * @param file    the file being preprocessed when the exception was thrown
+     * @param cause   the cause. (A null value is permitted, and indicates that
      *                the cause is nonexistent or unknown.)
      */
     public PPException(String message, File file, Throwable cause) {
@@ -98,15 +98,15 @@ public class PPException extends Exception {
     /**
      * Constructs a new exception with the specified detail message, cause, file
      * and line where it occurred.
-     * 
-     * @param message the detail message
-     * @param file the file being preprocessed when the exception was thrown
-     * @param cause the cause. (A null value is permitted, and indicates that
-     *                the cause is nonexistent or unknown.)
+     *
+     * @param message    the detail message
+     * @param file       the file being preprocessed when the exception was thrown
+     * @param cause      the cause. (A null value is permitted, and indicates that
+     *                   the cause is nonexistent or unknown.)
      * @param lineNumber the line where the error occurred
      */
     public PPException(String message, File file, Throwable cause,
-            int lineNumber) {
+                       int lineNumber) {
         super(message, cause);
         m_lineNumber = lineNumber;
         m_file = file;
@@ -114,7 +114,7 @@ public class PPException extends Exception {
 
     /**
      * Get the line where the error occurred.
-     * 
+     *
      * @return line number
      */
     public int getLineNumber() {
@@ -123,7 +123,7 @@ public class PPException extends Exception {
 
     /**
      * Get the file being preprocessed when the exception was thrown.
-     * 
+     *
      * @return the file
      */
     public File getFile() {

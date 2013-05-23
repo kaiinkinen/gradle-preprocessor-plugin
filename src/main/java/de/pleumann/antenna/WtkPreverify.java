@@ -20,121 +20,114 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-
-import org.apache.tools.ant.BuildException;
-
 import de.pleumann.antenna.misc.Utility;
 import de.pleumann.antenna.post.PostProcessor;
+import org.apache.tools.ant.BuildException;
+
+import java.io.File;
 
 public class WtkPreverify extends PostProcessor {
 
-	private File srcDir;
+    private File srcDir;
 
-	private File destDir;
+    private File destDir;
 
-	private boolean cldc = true;
+    private boolean cldc = true;
 
-	private int flags;
+    private int flags;
 
-	public void setCldc(boolean on) {
-		this.cldc = on;
-	}
+    public void setCldc(boolean on) {
+        this.cldc = on;
+    }
 
-	public void setNonative(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NONATIVE;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NONATIVE;
-		}
-	}
-	
-	public void setNofloat(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NOFLOAT;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NOFLOAT;
-		}
-	}
-	
-	public void setNofinalize(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NOFINALIZE;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NOFINALIZE;
-		}
-	}
+    public void setNonative(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NONATIVE;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NONATIVE;
+        }
+    }
 
-	public void setDestdir(File destDir) {
-		if (getJarFile() != null) {
-			throw new BuildException("Can only preverify JAR or directory, not both.");
-		}
+    public void setNofloat(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NOFLOAT;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NOFLOAT;
+        }
+    }
 
-		this.destDir = destDir;
-	}
+    public void setNofinalize(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NOFINALIZE;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NOFINALIZE;
+        }
+    }
 
-	public void setSrcdir(File srcDir) {
-		if (getJarFile() != null) {
-			throw new BuildException("Please use \"tojarfile\" to specify preverified JAR");
-		}
+    public void setDestdir(File destDir) {
+        if (getJarFile() != null) {
+            throw new BuildException("Can only preverify JAR or directory, not both.");
+        }
 
-		this.srcDir = srcDir;
-	}
+        this.destDir = destDir;
+    }
 
-	public void setJarfile(File srcFile) {
-		if (srcDir != null) {
-			throw new BuildException("Can only preverify JAR or directory, not both.");
-		}
+    public void setSrcdir(File srcDir) {
+        if (getJarFile() != null) {
+            throw new BuildException("Please use \"tojarfile\" to specify preverified JAR");
+        }
 
-		super.setJarfile(srcFile);
-	}
+        this.srcDir = srcDir;
+    }
 
-	public void setTojarfile(File destFile) {
-		if (srcDir != null) {
-			throw new BuildException("Please use \"destdir\" to specify preverified directory");
-		}
+    public void setJarfile(File srcFile) {
+        if (srcDir != null) {
+            throw new BuildException("Can only preverify JAR or directory, not both.");
+        }
 
-		super.setTojarfile(destFile);
-	}
+        super.setJarfile(srcFile);
+    }
 
-	public void execute() throws BuildException {
-		if (!isActive())
-			return;
+    public void setTojarfile(File destFile) {
+        if (srcDir != null) {
+            throw new BuildException("Please use \"destdir\" to specify preverified directory");
+        }
 
-		if ((getJarFile() == null) && (srcDir == null)) {
-			throw new BuildException("Need a JAR file or a source directory");
-		}
+        super.setTojarfile(destFile);
+    }
 
-		File tmpDir = getUtility().getTempDir();
+    public void execute() throws BuildException {
+        if (!isActive())
+            return;
 
-		try {
-			try {
-				if (srcDir != null) {
-					getUtility().preverify(srcDir, destDir, getFullClasspath(), cldc, flags);
-				}
-				else {
-					getUtility().preverify(getJarFile(), tmpDir, getFullClasspath(), cldc, flags);
+        if ((getJarFile() == null) && (srcDir == null)) {
+            throw new BuildException("Need a JAR file or a source directory");
+        }
 
-					if (getToJarFile() == null) {
-						setTojarfile(getJarFile());
-					}
+        File tmpDir = getUtility().getTempDir();
 
-					getToJarFile().delete();
-					new File(tmpDir, getJarFile().getName()).renameTo(getToJarFile());
+        try {
+            try {
+                if (srcDir != null) {
+                    getUtility().preverify(srcDir, destDir, getFullClasspath(), cldc, flags);
+                } else {
+                    getUtility().preverify(getJarFile(), tmpDir, getFullClasspath(), cldc, flags);
 
-					updateJad();
-				}
-			}
-			finally {
-				getUtility().delete(tmpDir);
-			}
-		}
-		catch (Exception e) {
-			throw new BuildException(e);
-		}
-	}
+                    if (getToJarFile() == null) {
+                        setTojarfile(getJarFile());
+                    }
+
+                    getToJarFile().delete();
+                    new File(tmpDir, getJarFile().getName()).renameTo(getToJarFile());
+
+                    updateJad();
+                }
+            } finally {
+                getUtility().delete(tmpDir);
+            }
+        } catch (Exception e) {
+            throw new BuildException(e);
+        }
+    }
 
 }

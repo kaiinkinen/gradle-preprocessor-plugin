@@ -20,28 +20,31 @@
  */
 package de.pleumann.antenna;
 
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.misc.Utility;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import org.apache.tools.ant.*;
-
-import de.pleumann.antenna.misc.*;
 
 /**
  * Deployment task.
  */
 public class WtkDeploy extends Task {
 
-	private File jarFile;
+    private File jarFile;
 
-	private File jadFile;
-	
-	private String encoding;
+    private File jadFile;
 
-	private String target;
+    private String encoding;
 
-	private boolean delete;
+    private String target;
+
+    private boolean delete;
 
     private String login;
 
@@ -54,38 +57,38 @@ public class WtkDeploy extends Task {
         condition = new Conditional(getProject());
     }
 
-	public void setJarfile(File file) {
-		jarFile = file;
-	}
+    public void setJarfile(File file) {
+        jarFile = file;
+    }
 
-	public void setJadfile(File file) {
-		jadFile = file;
-	}
-	
-	public void setEncoding(String encoding) {
-	    this.encoding = encoding;
-	}
+    public void setJadfile(File file) {
+        jadFile = file;
+    }
 
-	public void setTarget(String s) {
-		target = s;
-	}
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
 
-	public void setDelete(boolean b) {
-		delete = b;
-	}
+    public void setTarget(String s) {
+        target = s;
+    }
+
+    public void setDelete(boolean b) {
+        delete = b;
+    }
 
     public void setLogin(String s) {
         login = s;
     }
 
-    public void setPassword(String s ) {
+    public void setPassword(String s) {
         password = s;
     }
 
     public void setIf(String s) {
         condition.setIf(s);
     }
-    
+
     public void setUnless(String s) {
         condition.setUnless(s);
     }
@@ -94,75 +97,74 @@ public class WtkDeploy extends Task {
         return condition.isActive();
     }
 
-	public void execute() throws BuildException {
+    public void execute() throws BuildException {
         if (!isActive()) return;
 
-		try {
-			if (jarFile == null || !jarFile.exists()) {
-				throw new IllegalArgumentException("Need a JAR file.");
-			}
+        try {
+            if (jarFile == null || !jarFile.exists()) {
+                throw new IllegalArgumentException("Need a JAR file.");
+            }
 
-			if (jadFile == null || !jadFile.exists()) {
-				throw new IllegalArgumentException("Need a JAD file.");
-			}
+            if (jadFile == null || !jadFile.exists()) {
+                throw new IllegalArgumentException("Need a JAD file.");
+            }
 
-			if (target == null) {
+            if (target == null) {
                 JadFile jad = new JadFile();
                 jad.load(jadFile.getAbsolutePath(), encoding);
-                
+
                 String s = jad.getValue("MIDlet-Jar-URL");
                 if (s != null && s.startsWith("http://")) {
                     int p = s.lastIndexOf('/');
                     target = s.substring(0, p);
                 }
             }
-            
+
             if (target == null) {
-				throw new IllegalArgumentException("Need a deployment target.");
-			}
+                throw new IllegalArgumentException("Need a deployment target.");
+            }
 
             log("Deploying to " + target + "...");
 
-			upload(jarFile);
-			upload(jadFile);
-		}
-		catch (Exception e) {
-			throw new BuildException(e);
-		}
-	}
+            upload(jarFile);
+            upload(jadFile);
+        } catch (Exception e) {
+            throw new BuildException(e);
+        }
+    }
 
-	private void upload(File file) throws IOException {
-		log((delete ? "Deleting" : "Uploading") + " file " + file.getName());
+    private void upload(File file) throws IOException {
+        log((delete ? "Deleting" : "Uploading") + " file " + file.getName());
 
-		String s = target + "/" + file.getName() + "?delete=" + delete;
+        String s = target + "/" + file.getName() + "?delete=" + delete;
         if (login != null) {
             s = s + "&login=" + login;
         }
         if (password != null) {
             s = s + "&password=" + password;
         }
-        
-		URL url = new URL(s);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-		connection.setDoOutput(true);
-		connection.setRequestMethod("PUT");
-		connection.connect();
+        URL url = new URL(s);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-		if (!delete) {
-			InputStream input = new FileInputStream(file);
-			OutputStream output = connection.getOutputStream();
-			Utility.copyStreams(input, output);
-			output.flush();
-			output.close();
-		}
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.connect();
 
-		int i = connection.getResponseCode();
-		String message = connection.getResponseMessage() + " (" + i + ")";
+        if (!delete) {
+            InputStream input = new FileInputStream(file);
+            OutputStream output = connection.getOutputStream();
+            Utility.copyStreams(input, output);
+            output.flush();
+            output.close();
+        }
 
-		log(message, Project.MSG_VERBOSE);
-		if (i >= 300) {
-			throw new IOException(message);
-		}
-	}
+        int i = connection.getResponseCode();
+        String message = connection.getResponseMessage() + " (" + i + ")";
+
+        log(message, Project.MSG_VERBOSE);
+        if (i >= 300) {
+            throw new IOException(message);
+        }
+    }
 }

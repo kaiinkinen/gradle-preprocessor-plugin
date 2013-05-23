@@ -22,13 +22,12 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-import java.io.IOException;
-
+import de.pleumann.antenna.post.PostProcessor;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 
-import de.pleumann.antenna.post.PostProcessor;
+import java.io.File;
+import java.io.IOException;
 
 public class WtkRapc extends PostProcessor {
 
@@ -41,7 +40,7 @@ public class WtkRapc extends PostProcessor {
     private File source;
     private String codename;
     private String importlibs;
-//  private File srcDir;
+    //  private File srcDir;
     private boolean quietMode;
     private boolean midletMode;
     private boolean libraryMode;
@@ -74,6 +73,7 @@ public class WtkRapc extends PostProcessor {
     public void setMidlet(boolean b) {
         this.midletMode = b;
     }
+
     public void setLibrary(boolean b) {
         this.libraryMode = b;
     }
@@ -102,8 +102,8 @@ public class WtkRapc extends PostProcessor {
 
         // Build the exec command and argument list.
         String arguments =
-            "import="+getUtility().getOutsideQuotedPath(importlibs) + " codename="+codename + " " + jad + " " + src;
-        String execCmd = rapc + ((quietMode)?" -quiet ":" ") + ((midletMode)?" -midlet ":" ") + ((libraryMode)?" -library ":" ") + arguments;
+                "import=" + getUtility().getOutsideQuotedPath(importlibs) + " codename=" + codename + " " + jad + " " + src;
+        String execCmd = rapc + ((quietMode) ? " -quiet " : " ") + ((midletMode) ? " -midlet " : " ") + ((libraryMode) ? " -library " : " ") + arguments;
 
         try {
 
@@ -111,7 +111,7 @@ public class WtkRapc extends PostProcessor {
             while (t0.length() < 58) t0.append(' ');
             StringBuffer t1 = new StringBuffer("Ant task by C. Enrique Ortiz, eortiz@j2medeveloper.com");
             while (t1.length() < 58) t1.append(' ');
-            StringBuffer t2 = new StringBuffer("For JDE 3.7 ("+bbjdebuildJars+")");
+            StringBuffer t2 = new StringBuffer("For JDE 3.7 (" + bbjdebuildJars + ")");
             while (t2.length() < 58) t2.append(' ');
 
             this.log("**************************************************************");
@@ -149,19 +149,19 @@ public class WtkRapc extends PostProcessor {
 
                 // Copy the JAD file
                 srcfile = jadfile;
-                destfile = new File(destDir+"/"+codename+".jad");
+                destfile = new File(destDir + "/" + codename + ".jad");
                 this.log("Copying file " + srcfile + " To " + destfile);
                 getUtility().copy(srcfile, destfile);
 
                 // Copy the COD file
-                srcfile = new File(project.getBaseDir()+"/"+codename+".cod");
-                destfile = new File(destDir+"/"+codename+".cod");
+                srcfile = new File(project.getBaseDir() + "/" + codename + ".cod");
+                destfile = new File(destDir + "/" + codename + ".cod");
                 this.log("Copying file " + srcfile + " To " + destfile);
                 getUtility().copy(srcfile, destfile);
 
                 // Copy the ALX file
-                srcfile = new File(project.getBaseDir()+"/"+codename+".alx");
-                destfile = new File(destDir+"/"+codename+".alx");
+                srcfile = new File(project.getBaseDir() + "/" + codename + ".alx");
+                destfile = new File(destDir + "/" + codename + ".alx");
                 this.log("Copying file " + srcfile + " To " + destfile);
                 getUtility().copy(srcfile, destfile);
 

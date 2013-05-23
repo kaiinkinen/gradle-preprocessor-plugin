@@ -20,187 +20,191 @@
  */
 package de.pleumann.antenna.post;
 
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.misc.Utility;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Reference;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.apache.tools.ant.*;
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.Reference;
-
-import de.pleumann.antenna.misc.*;
-
 public abstract class PostProcessor extends Task {
 
-	public class Preserve extends Conditional {
-		private String value = "";
+    public class Preserve extends Conditional {
+        private String value = "";
 
         public Preserve(Project project) {
             super(project);
         }
-        
-		public void setClass(String value) {
-			this.value = value;
-		}
 
-		public String toString() {
-			return value;
-		}
-	}
+        public void setClass(String value) {
+            this.value = value;
+        }
+
+        public String toString() {
+            return value;
+        }
+    }
 
     private boolean verbose = true;
 
     private Conditional condition;
-    
-	private Vector preserve = new Vector();
 
-	private File jarFile;
+    private Vector preserve = new Vector();
 
-	private File toJarFile;
+    private File jarFile;
 
-	private File jadFile;
+    private File toJarFile;
 
-	private JadFile jad;
-	
-	private String encoding;
+    private File jadFile;
 
-	private Path bootclasspath;
+    private JadFile jad;
 
-	private Path classpath;
+    private String encoding;
 
-	private Utility utility;
+    private Path bootclasspath;
 
-	public void init() {
-		super.init();
-		classpath = new Path(getProject(), "");
-		utility = Utility.getInstance(getProject(), this);
+    private Path classpath;
+
+    private Utility utility;
+
+    public void init() {
+        super.init();
+        classpath = new Path(getProject(), "");
+        utility = Utility.getInstance(getProject(), this);
         condition = new Conditional(getProject());
-	}
+    }
 
-   public void setVerbose(boolean verbose) {
-      this.verbose = verbose;
-   }
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
 
-	public Object createPreserve() {
-		Preserve pre = new Preserve(getProject());
-		preserve.addElement(pre);
-		return pre;
-	}
+    public Object createPreserve() {
+        Preserve pre = new Preserve(getProject());
+        preserve.addElement(pre);
+        return pre;
+    }
 
-	public void setJarfile(File srcFile) {
-		this.jarFile = srcFile;
-	}
+    public void setJarfile(File srcFile) {
+        this.jarFile = srcFile;
+    }
 
-	public void setTojarfile(File destFile) {
-		this.toJarFile = destFile;
-	}
+    public void setTojarfile(File destFile) {
+        this.toJarFile = destFile;
+    }
 
-	public void setJadfile(File file) {
-		jadFile = file;
-	}
-	
-	public void setEncoding(String encoding) {
-	    this.encoding = encoding;
-	}
+    public void setJadfile(File file) {
+        jadFile = file;
+    }
 
-	public String getFullClasspath() {
-		String cp;
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
 
-		if (bootclasspath == null) {
-			cp = utility.getMidpApi();  // was: getEmptyApi()
-		}
-		else {
-			cp = bootclasspath.toString();
-		}
+    public String getFullClasspath() {
+        String cp;
 
-		if ((classpath != null) && (classpath.size() > 0)) {
-			cp = cp + File.pathSeparatorChar + classpath;
-		}
-		return cp;
-	}
+        if (bootclasspath == null) {
+            cp = utility.getMidpApi();  // was: getEmptyApi()
+        } else {
+            cp = bootclasspath.toString();
+        }
 
-	public void setClasspath(Path classpath) {
-		if (this.classpath == null) {
-			this.classpath = classpath;
-		}
-		else {
-			this.classpath.append(classpath);
-		}
-	}
+        if ((classpath != null) && (classpath.size() > 0)) {
+            cp = cp + File.pathSeparatorChar + classpath;
+        }
+        return cp;
+    }
 
-	/** Gets the classpath to be used for this compilation. */
-	public Path getClasspath() {
-		return classpath;
-	}
+    public void setClasspath(Path classpath) {
+        if (this.classpath == null) {
+            this.classpath = classpath;
+        } else {
+            this.classpath.append(classpath);
+        }
+    }
 
-	/**
-	* Adds a path to the classpath.
-	*/
-	public Path createClasspath() {
-		if (classpath == null) {
-			classpath = new Path(getProject());
-		}
-		return classpath.createPath();
-	}
+    /**
+     * Gets the classpath to be used for this compilation.
+     */
+    public Path getClasspath() {
+        return classpath;
+    }
 
-	/**
-	* Adds a reference to a classpath defined elsewhere.
-	*/
-	public void setClasspathref(Reference r) {
-		createClasspath().setRefid(r);
-	}
+    /**
+     * Adds a path to the classpath.
+     */
+    public Path createClasspath() {
+        if (classpath == null) {
+            classpath = new Path(getProject());
+        }
+        return classpath.createPath();
+    }
 
-	public void setBootclasspath(Path classpath) {
-		if (this.bootclasspath == null) {
-			this.bootclasspath = classpath;
-		}
-		else {
-			this.bootclasspath.append(classpath);
-		}
-	}
+    /**
+     * Adds a reference to a classpath defined elsewhere.
+     */
+    public void setClasspathref(Reference r) {
+        createClasspath().setRefid(r);
+    }
 
-	/** Gets the classpath to be used for this compilation. */
-	public Path getBootclasspath() {
-		return bootclasspath;
-	}
+    public void setBootclasspath(Path classpath) {
+        if (this.bootclasspath == null) {
+            this.bootclasspath = classpath;
+        } else {
+            this.bootclasspath.append(classpath);
+        }
+    }
 
-	/**
-	* Adds a path to the bootclasspath.
-	*/
-	public Path createBootclasspath() {
-		if (bootclasspath == null) {
-			bootclasspath = new Path(getProject());
-		}
-		return bootclasspath.createPath();
-	}
+    /**
+     * Gets the classpath to be used for this compilation.
+     */
+    public Path getBootclasspath() {
+        return bootclasspath;
+    }
 
-	/**
-	* Adds a reference to a bootclasspath defined elsewhere.
-	*/
-	public void setBootclasspathref(Reference r) {
-		createBootclasspath().setRefid(r);
-	}
+    /**
+     * Adds a path to the bootclasspath.
+     */
+    public Path createBootclasspath() {
+        if (bootclasspath == null) {
+            bootclasspath = new Path(getProject());
+        }
+        return bootclasspath.createPath();
+    }
 
-   public boolean getVerbose() {
-      return verbose;
-   }
+    /**
+     * Adds a reference to a bootclasspath defined elsewhere.
+     */
+    public void setBootclasspathref(Reference r) {
+        createBootclasspath().setRefid(r);
+    }
 
-	public Vector getPreserve() {
+    public boolean getVerbose() {
+        return verbose;
+    }
+
+    public Vector getPreserve() {
         Vector result = new Vector();
         for (int i = 0; i < preserve.size(); i++) {
-            Preserve p = (Preserve)preserve.elementAt(i);
+            Preserve p = (Preserve) preserve.elementAt(i);
             if (p.isActive()) {
                 result.add(p);
             }
         }
-        
-		return result;
-	}
+
+        return result;
+    }
 
     public void setIf(String s) {
         condition.setIf(s);
     }
-    
+
     public void setUnless(String s) {
         condition.setUnless(s);
     }
@@ -208,48 +212,46 @@ public abstract class PostProcessor extends Task {
     public boolean isActive() {
         return condition.isActive();
     }
-        
-	public File getJarFile() {
-		return jarFile;
-	}
 
-	public File getToJarFile() {
-		return toJarFile;
-	}
+    public File getJarFile() {
+        return jarFile;
+    }
 
-	public JadFile getJad() throws IOException {
-		if (jad != null) {
-			return jad;
-		}
-		else {
-			if (jadFile != null) {
-				jad = new JadFile();
-				jad.load("" + jadFile, encoding);
-			}
+    public File getToJarFile() {
+        return toJarFile;
+    }
 
-			return jad;
-		}
-	}
+    public JadFile getJad() throws IOException {
+        if (jad != null) {
+            return jad;
+        } else {
+            if (jadFile != null) {
+                jad = new JadFile();
+                jad.load("" + jadFile, encoding);
+            }
 
-	public Utility getUtility() {
-		return utility;
-	}
+            return jad;
+        }
+    }
 
-	public void updateJad() throws IOException {
-		JadFile jad = getJad();
+    public Utility getUtility() {
+        return utility;
+    }
 
-		if ((jad != null) && (jarFile != null)) {
-			if ((toJarFile == null) || (jarFile.equals(toJarFile))) {
-				jad.setValue("MIDlet-Jar-Size", "" + jarFile.length());
+    public void updateJad() throws IOException {
+        JadFile jad = getJad();
 
-				log("Updating JAD file " + jadFile);
-				try {
-					jad.save("" + jadFile, encoding);
-				}
-				catch (IOException ex) {
-					throw new BuildException("Error processing JAD file", ex);
-				}
-			}
-		}
-	}
+        if ((jad != null) && (jarFile != null)) {
+            if ((toJarFile == null) || (jarFile.equals(toJarFile))) {
+                jad.setValue("MIDlet-Jar-Size", "" + jarFile.length());
+
+                log("Updating JAD file " + jadFile);
+                try {
+                    jad.save("" + jadFile, encoding);
+                } catch (IOException ex) {
+                    throw new BuildException("Error processing JAD file", ex);
+                }
+            }
+        }
+    }
 }

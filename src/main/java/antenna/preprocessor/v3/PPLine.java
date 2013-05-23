@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -65,23 +65,23 @@ public class PPLine {
     private String m_text;
 
     /**
-     * 
+     *
      */
     private final int m_lineNumber;
 
     /**
-     * 
+     *
      */
     private final File m_fileName;
 
     /**
-     * 
+     *
      */
     private char m_prefixChar;
 
     /**
      * Creates a new line of source code to be handled by the preprocessor.
-     * 
+     *
      * @param s the line value
      */
     public PPLine(String s) {
@@ -91,9 +91,9 @@ public class PPLine {
     /**
      * Creates a new preprocessor line, automatically analyzing the given source
      * line.
-     * 
-     * @param fileName the name of the file being parsed
-     * @param s the line of source code
+     *
+     * @param fileName   the name of the file being parsed
+     * @param s          the line of source code
      * @param lineNumber the line number in the file
      */
     public PPLine(File fileName, String s, int lineNumber) {
@@ -168,7 +168,7 @@ public class PPLine {
         }
         String white = s.substring(0, p);
         String text = s.substring(p);
-        return new String[] { white, text };
+        return new String[]{white, text};
     }
 
     /**

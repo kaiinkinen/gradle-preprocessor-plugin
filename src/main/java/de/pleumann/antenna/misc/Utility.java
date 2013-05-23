@@ -184,14 +184,14 @@ public class Utility {
         /*
           * set midp and cldc versions
           */
-         String cldc = project.getProperty("wtk.cldc.version");
-         if (cldc != null)
-             cldcVersion = cldc;
-         String midp = project.getProperty("wtk.midp.version");
-         if (midp != null)
-             midpVersion = midp;
+        String cldc = project.getProperty("wtk.cldc.version");
+        if (cldc != null)
+            cldcVersion = cldc;
+        String midp = project.getProperty("wtk.midp.version");
+        if (midp != null)
+            midpVersion = midp;
 
-     
+
         BufferedReader input = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/toolkit/autodetect.txt")));
         String line = null;
         try {
@@ -213,7 +213,7 @@ public class Utility {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (input != null){
+        if (input != null) {
             try {
                 input.close();
             } catch (IOException e) {
@@ -233,36 +233,36 @@ public class Utility {
                 toolkit = new Toolkit("Siemens Mobility Toolkit(MIDP1.0) ", "lib/api.jar");
             } else if (new File(getWtkRelative("emulators/C6C/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit 3(MIDP2.0)","emulators/C6C/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit 3(MIDP2.0)", "emulators/C6C/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/C65/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/C65/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/C65/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/C75/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/C75/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/C75/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/CX6C/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/CX6C/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/CX6C/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/CX7C/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/CX7C/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/CX7C/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/CX75/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/CX75/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/CX75/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/S75/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/S75/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/S75/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/SL65/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/S75/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/S75/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/SL75/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/S75/lib/API.jar");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/S75/lib/API.jar");
             } else if (new File(getWtkRelative("emulators/SXG75/lib/API.jar")).exists()) {
                 toolkitType = TOOLKIT_SIEMENS;
-                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)","emulators/S75/lib/API.jar");
-            }else{
-                toolkit = new Toolkit("Unknown toolkit","");
+                toolkit = new Toolkit("Siemens Mobility Toolkit3(MIDP2.0)", "emulators/S75/lib/API.jar");
+            } else {
+                toolkit = new Toolkit("Unknown toolkit", "");
                 toolkitType = TOOLKIT_UNKNOWN;
             }
 
@@ -541,8 +541,7 @@ public class Utility {
                 try {
                     FileInputStream fin = new FileInputStream(log);
                     copyStreams(fin, System.out);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {

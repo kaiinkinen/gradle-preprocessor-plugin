@@ -20,14 +20,18 @@
  */
 package de.pleumann.antenna.http;
 
-import java.io.*;
-import java.util.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-
 import de.pleumann.antenna.misc.JadFile;
 import de.pleumann.antenna.misc.Strings;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Enumeration;
 
 /**
  * MIDlet OTA server.
@@ -52,8 +56,7 @@ public class OTAServer extends HttpServlet {
         String s = getInitParameter("files");
         if (s == null) {
             files = new File(getServletContext().getRealPath("/WEB-INF/files"));
-        }
-        else {
+        } else {
             files = new File(s);
         }
 
@@ -65,12 +68,10 @@ public class OTAServer extends HttpServlet {
         htmlpage = new Strings();
         try {
             htmlpage.loadFromFile(getServletContext().getRealPath("/WEB-INF/") + "/index.html");
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             try {
                 htmlpage.loadFromStream(getClass().getResourceAsStream("/index.html"));
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored) {
                 htmlpage.clear();
             }
         }
@@ -78,20 +79,17 @@ public class OTAServer extends HttpServlet {
         wmlpage = new Strings();
         try {
             wmlpage.loadFromFile(getServletContext().getRealPath("/WEB-INF/") + "/index.wml");
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             try {
                 wmlpage.loadFromStream(getClass().getResourceAsStream("/index.wml"));
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored) {
             }
         }
 
         counters = new Strings();
         try {
             counters.loadFromFile(getServletContext().getRealPath("/WEB-INF/") + "/counter.txt");
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
         }
     }
 
@@ -110,8 +108,7 @@ public class OTAServer extends HttpServlet {
 
             if (wml && !html) {
                 name = "/index.wml";
-            }
-            else {
+            } else {
                 response.setStatus(HttpServletResponse.SC_SEE_OTHER);
                 response.setHeader("Location", getBaseURL(request) + "/index.html");
                 return;
@@ -122,13 +119,11 @@ public class OTAServer extends HttpServlet {
             response.setContentType("text/html");
             PrintWriter writer = response.getWriter();
             listFiles(request, htmlpage, writer);
-        }
-        else if ("/index.wml".equals(name) || "/wap".equals(name)) {
+        } else if ("/index.wml".equals(name) || "/wap".equals(name)) {
             response.setContentType("text/vnd.wap.wml");
             PrintWriter writer = response.getWriter();
             listFiles(request, wmlpage, writer);
-        }
-        else {
+        } else {
             File file = new File(files + name);
             if (!file.exists()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -142,8 +137,7 @@ public class OTAServer extends HttpServlet {
                 String s = new File(jad.getValue("MIDlet-Jar-URL")).getName();
                 jad.setValue("MIDlet-Jar-URL", getBaseURL(request) + "/" + s);
                 jad.save(response.getOutputStream());
-            }
-            else if (file.getName().endsWith(".jar")) {
+            } else if (file.getName().endsWith(".jar")) {
                 response.setContentType("application/java-archive");
                 response.setContentLength(new Long(file.length()).intValue());
                 InputStream input = new FileInputStream(file);
@@ -153,8 +147,7 @@ public class OTAServer extends HttpServlet {
                 output.flush();
 
                 increaseCounter(file.getName());
-            }
-            else if (file.getName().endsWith(".cod")) {
+            } else if (file.getName().endsWith(".cod")) {
                 response.setContentType("application/vnd.rim.cod");
                 response.setContentLength(new Long(file.length()).intValue());
                 InputStream input = new FileInputStream(file);
@@ -164,8 +157,7 @@ public class OTAServer extends HttpServlet {
                 output.flush();
 
                 increaseCounter(file.getName());
-            }
-            else {
+            } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
@@ -196,8 +188,7 @@ public class OTAServer extends HttpServlet {
         if ("true".equals(request.getParameter("delete"))) {
             String name = request.getPathInfo();
             new File(files + name).delete();
-        }
-        else {
+        } else {
             String name = request.getPathInfo();
             if (name == null || "/".equals(name)) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -221,8 +212,7 @@ public class OTAServer extends HttpServlet {
             int i = Integer.parseInt(num) + 1;
             counters.setValue(name, "" + i);
             counters.saveToFile(getServletContext().getRealPath("/WEB-INF/") + "/counter.txt");
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -264,8 +254,7 @@ public class OTAServer extends HttpServlet {
 
                             if ("File".equals(key)) {
                                 value = getBaseURL(request) + "/" + list[i].getName();
-                            }
-                            else if ("Date".equals(key)) {
+                            } else if ("Date".equals(key)) {
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTimeInMillis(list[i].lastModified());
                                 String monthNames = "JanFebMarAprMayJunJulAugSepOctNovDec";
@@ -274,15 +263,12 @@ public class OTAServer extends HttpServlet {
                                 year = year.substring(2);
                                 value = calendar.get(Calendar.DAY_OF_MONTH) + "-"
                                         + monthNames.substring(3 * month, 3 * month + 3) + "-" + year;
-                            }
-                            else if ("Counter".equals(key)) {
+                            } else if ("Counter".equals(key)) {
                                 value = counters.getValue(new File(jad.getValue("MIDlet-Jar-URL")).getName());
                                 if (value == null) value = "0";
-                            }
-                            else if ("MIDlet-Jar-URL".equals(key)) {
+                            } else if ("MIDlet-Jar-URL".equals(key)) {
                                 value = getBaseURL(request) + "/" + new File(value).getName();
-                            }
-			    else if ("RIM-COD-URL".equals(key)) {
+                            } else if ("RIM-COD-URL".equals(key)) {
                                 value = getBaseURL(request) + "/" + new File(value).getName();
                             }
 
@@ -334,7 +320,7 @@ public class OTAServer extends HttpServlet {
 
         return result.toString();
     }
-    
+
     /**
      * Copies the contents of the source stream to the target stream.
      */
@@ -346,5 +332,5 @@ public class OTAServer extends HttpServlet {
             i = source.read(buffer);
         }
     }
-    
+
 }

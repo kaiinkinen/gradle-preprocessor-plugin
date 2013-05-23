@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -12,31 +12,16 @@
  */
 package antenna.preprocessor.v3;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.Stack;
-import java.util.Vector;
-
+import antenna.preprocessor.v3.parser.*;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenRewriteStream;
 import org.antlr.runtime.tree.CommonTree;
 
-import antenna.preprocessor.v3.parser.APPLexer;
-import antenna.preprocessor.v3.parser.APPParser;
-import antenna.preprocessor.v3.parser.CommonAST;
-import antenna.preprocessor.v3.parser.Defines;
-import antenna.preprocessor.v3.parser.PPLineAST;
+import java.io.*;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * @author Omry Yadan
@@ -44,62 +29,62 @@ import antenna.preprocessor.v3.parser.PPLineAST;
 public class Preprocessor {
 
     /**
-     * 
+     *
      */
     public static final int STATE_NO_CONDITIONAL = 0;
 
     /**
-     * 
+     *
      */
     public static final int STATE_CAN_BECOME_TRUE = 1;
 
     /**
-     * 
+     *
      */
     public static final int STATE_IS_TRUE = 2;
 
     /**
-     * 
+     *
      */
     public static final int STATE_HAS_BEEN_TRUE = 3;
 
     /**
-     * 
+     *
      */
     private Stack m_statsStack;
 
     /**
-     * 
+     *
      */
     private int m_currentState;
 
     /**
-     * 
+     *
      */
     private boolean m_verbose = false;
 
     /**
-     * 
+     *
      */
     private Defines m_defines;
 
     /**
-     * 
+     *
      */
     private File m_file;
 
     /**
-     * 
+     *
      */
     public ILogger m_logger;
 
     /**
-     * 
+     *
      */
     public ILineFilter m_lineFilter;
 
     /**
-     * 
+     *
      */
     private IPreprocessorListener m_listener;
 
@@ -115,12 +100,12 @@ public class Preprocessor {
     private boolean m_debugHideNextLine = false;
 
     /**
-     * 
+     *
      */
     private int m_currentMdebugBlockStart = -1;
 
     /**
-     * 
+     *
      */
     private boolean m_insideHiddenMdebugBlock = false;
 
@@ -130,7 +115,6 @@ public class Preprocessor {
     private boolean m_modified;
 
     /**
-     * 
      * @param logger
      * @param lineFilter
      */
@@ -233,7 +217,7 @@ public class Preprocessor {
      * @throws IOException
      */
     public static void saveStrings(Vector lines, OutputStream out,
-            String encoding) throws IOException {
+                                   String encoding) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out,
                 encoding));
         try {
@@ -446,7 +430,7 @@ public class Preprocessor {
     /**
      * Returns a literal pattern <code>String</code> for the specified
      * <code>String</code>.
-     * 
+     * <p/>
      * <p>
      * This method produces a <code>String</code> that can be used to create a
      * <code>Pattern</code> that would match the string <code>s</code> as if
@@ -454,7 +438,7 @@ public class Preprocessor {
      * </p>
      * Metacharacters or escape sequences in the input sequence will be given no
      * special meaning.
-     * 
+     *
      * @param s The string to be literalized
      * @return A literal string replacement taken from jdk 1.5
      */
@@ -486,12 +470,12 @@ public class Preprocessor {
         // replace %VARIABLE% macros with regexp to match them (.*)
         return "\\s*"
                 + regExpQuote(line.trim()).replaceAll("%.*%",
-                        "\\\\E\\.\\*\\\\Q") + "\\s*";
+                "\\\\E\\.\\*\\\\Q") + "\\s*";
     }
 
     /**
      * an ugly function
-     * 
+     *
      * @throws TokenStreamException
      * @throws RecognitionException
      * @throws IOException
@@ -643,7 +627,7 @@ public class Preprocessor {
     String commentLine(PPLine lp) {
         if ((lp.getType() == PPLine.TYPE_VISIBLE)
                 || ((lp.prefixChar() != PPLine.HIDDEN_LINE_COMMENT_CHAR) && (lp
-                        .getType() != PPLine.TYPE_COMMAND))) {
+                .getType() != PPLine.TYPE_COMMAND))) {
             return "//" + PPLine.HIDDEN_LINE_COMMENT_CHAR + lp.getSpace()
                     + lp.getText();
         } else {
@@ -692,7 +676,7 @@ public class Preprocessor {
     }
 
     /**
-     * 
+     *
      */
     private void handleElse() {
         if (m_currentState == STATE_NO_CONDITIONAL) {
@@ -705,7 +689,7 @@ public class Preprocessor {
     }
 
     /**
-     * 
+     *
      */
     private void handleEndIf() {
         if (m_currentState == STATE_NO_CONDITIONAL) {
@@ -727,7 +711,7 @@ public class Preprocessor {
      * @throws UnsupportedEncodingException
      */
     private void handleCommand(Vector lines, PPLine ppl, PPLineAST ast,
-            CommandEvaluator evaluator, String encoding, boolean lastLine)
+                               CommandEvaluator evaluator, String encoding, boolean lastLine)
             throws Exception, PPException, UnsupportedEncodingException {
 
         if (isVerbose()) {
@@ -738,78 +722,78 @@ public class Preprocessor {
 
         switch (type) {
 
-        case APPLexer.DEFINE:
-        case APPLexer.UNDEFINE: {
-            if (!isBlind()) {
-                evaluator.evaluate(ppl, ast, m_listener);
+            case APPLexer.DEFINE:
+            case APPLexer.UNDEFINE: {
+                if (!isBlind()) {
+                    evaluator.evaluate(ppl, ast, m_listener);
+                }
+                break;
             }
-            break;
-        }
 
-        case APPLexer.IF:
-        case APPLexer.IFDEF:
-        case APPLexer.IFNDEF: {
-            boolean r = evaluator.evaluate(ppl, ast, m_listener);
-            handleIf(r);
-            break;
-        }
-
-        case APPLexer.CONDITION: {
-            if (ppl.getLineNumber() != 0) {
-                throw new PPException(
-                        "//#condition is only allowed in the first line of the file",
-                        m_file, ppl.getLineNumber());
+            case APPLexer.IF:
+            case APPLexer.IFDEF:
+            case APPLexer.IFNDEF: {
+                boolean r = evaluator.evaluate(ppl, ast, m_listener);
+                handleIf(r);
+                break;
             }
-            boolean r = evaluator.evaluate(ppl, ast, m_listener);
-            handleCondition(r);
 
-            break;
-        }
+            case APPLexer.CONDITION: {
+                if (ppl.getLineNumber() != 0) {
+                    throw new PPException(
+                            "//#condition is only allowed in the first line of the file",
+                            m_file, ppl.getLineNumber());
+                }
+                boolean r = evaluator.evaluate(ppl, ast, m_listener);
+                handleCondition(r);
 
-        case APPLexer.ELIF:
-        case APPLexer.ELIFDEF:
-        case APPLexer.ELIFNDEF: {
-            boolean r = evaluator.evaluate(ppl, ast, m_listener);
-            handleElseIf(r);
-            break;
-        }
+                break;
+            }
 
-        case APPLexer.ELSE: {
-            handleElse();
-            break;
-        }
+            case APPLexer.ELIF:
+            case APPLexer.ELIFDEF:
+            case APPLexer.ELIFNDEF: {
+                boolean r = evaluator.evaluate(ppl, ast, m_listener);
+                handleElseIf(r);
+                break;
+            }
 
-        case APPLexer.ENDIF: {
-            handleEndIf();
-            break;
-        }
+            case APPLexer.ELSE: {
+                handleElse();
+                break;
+            }
 
-        case APPLexer.DEBUG: {
-            boolean show = evaluator.evaluate(ppl, ast, m_listener);
-            m_debugHideNextLine = !show;
-            break;
-        }
+            case APPLexer.ENDIF: {
+                handleEndIf();
+                break;
+            }
 
-        case APPLexer.MDEBUG: {
-            boolean show = evaluator.evaluate(ppl, ast, m_listener);
-            handleMdebug(show, ppl.getLineNumber());
-            break;
-        }
+            case APPLexer.DEBUG: {
+                boolean show = evaluator.evaluate(ppl, ast, m_listener);
+                m_debugHideNextLine = !show;
+                break;
+            }
 
-        case APPLexer.ENDDEBUG: {
-            handleEnddebug();
-            break;
-        }
+            case APPLexer.MDEBUG: {
+                boolean show = evaluator.evaluate(ppl, ast, m_listener);
+                handleMdebug(show, ppl.getLineNumber());
+                break;
+            }
 
-        case APPLexer.EXPAND: {
-            handleExpand(ppl, lines);
-            break;
-        }
+            case APPLexer.ENDDEBUG: {
+                handleEnddebug();
+                break;
+            }
 
-        default:
-            throw new PPException("Unexpected token "
-                    + APPParser.tokenNames[type] + " at \"" + ppl.getSource()
-                    + "\"", m_file, ppl.getLineNumber());
+            case APPLexer.EXPAND: {
+                handleExpand(ppl, lines);
+                break;
+            }
+
+            default:
+                throw new PPException("Unexpected token "
+                        + APPParser.tokenNames[type] + " at \"" + ppl.getSource()
+                        + "\"", m_file, ppl.getLineNumber());
         }
 
         if (type != APPLexer.DEBUG) {
@@ -846,7 +830,7 @@ public class Preprocessor {
     }
 
     /**
-     * 
+     *
      */
     private void handleEnddebug() {
         m_currentMdebugBlockStart = -1;
@@ -871,7 +855,7 @@ public class Preprocessor {
 
     /**
      * Get the Defines list
-     * 
+     *
      * @return the Defines list
      */
     public Defines getDefines() {

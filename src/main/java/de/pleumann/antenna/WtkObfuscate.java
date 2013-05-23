@@ -20,109 +20,106 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-import java.util.Vector;
-
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.post.PostProcessor;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 
-import de.pleumann.antenna.misc.Conditional;
-import de.pleumann.antenna.post.PostProcessor;
+import java.io.File;
+import java.util.Vector;
 
 public class WtkObfuscate extends PostProcessor {
 
-	public class Argument extends Conditional {
-		String value;
+    public class Argument extends Conditional {
+        String value;
 
-		public Argument(Project project) {
-			super(project);
-		}
+        public Argument(Project project) {
+            super(project);
+        }
 
-		public void setValue(String value) {
+        public void setValue(String value) {
             value = value.replaceAll("&lt;", "<");
             value = value.replaceAll("&gt;", ">");
-			this.value = value;
-		}
+            this.value = value;
+        }
 
-		public String toString() {
-			return value;
-		}
-	}
+        public String toString() {
+            return value;
+        }
+    }
 
-	private Vector arguments = new Vector();
+    private Vector arguments = new Vector();
 
-	private String obfuscator;
+    private String obfuscator;
 
-	public Argument createArgument() {
-		Argument a = new Argument(getProject());
-		arguments.addElement(a);
-		return a;
-	}
+    public Argument createArgument() {
+        Argument a = new Argument(getProject());
+        arguments.addElement(a);
+        return a;
+    }
 
-	public Vector getArguments() {
-		Vector result = new Vector();
-		for (int i = 0; i < arguments.size(); i++) {
-			Argument a = (Argument) arguments.elementAt(i);
-			if (a.isActive()) {
-				result.add(a);
-			}
-		}
+    public Vector getArguments() {
+        Vector result = new Vector();
+        for (int i = 0; i < arguments.size(); i++) {
+            Argument a = (Argument) arguments.elementAt(i);
+            if (a.isActive()) {
+                result.add(a);
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public void setObfuscator(String obfuscator) {
-		this.obfuscator = obfuscator;
-	}
+    public void setObfuscator(String obfuscator) {
+        this.obfuscator = obfuscator;
+    }
 
-	// Add ability to work on JAR/JAD pair. JAD size is
-	// updated automatically.
-	//
-	// Same for obfuscate, smartlink, preverify
-	//
-	// Generic class for ME tasks that take JAR/JAR?
+    // Add ability to work on JAR/JAD pair. JAD size is
+    // updated automatically.
+    //
+    // Same for obfuscate, smartlink, preverify
+    //
+    // Generic class for ME tasks that take JAR/JAR?
 
-	public void execute() throws BuildException {
-		if (!isActive())
-			return;
+    public void execute() throws BuildException {
+        if (!isActive())
+            return;
 
-		if (getJarFile() == null) {
-			throw new BuildException("Need a JAR file");
-		}
+        if (getJarFile() == null) {
+            throw new BuildException("Need a JAR file");
+        }
 
-		File tmpDir = getUtility().getTempDir();
+        File tmpDir = getUtility().getTempDir();
 
-		try {
-			try {
-				File tmpFile = getToJarFile();
-				if (tmpFile == null) {
-					tmpFile = new File(tmpDir + "/output.jar");
-				}
+        try {
+            try {
+                File tmpFile = getToJarFile();
+                if (tmpFile == null) {
+                    tmpFile = new File(tmpDir + "/output.jar");
+                }
 
-				Vector preserve = getPreserve();
-				getUtility().getPreserveList(getJad(), preserve);
-				getUtility().obfuscate(getJarFile(), tmpFile, getFullClasspath(), getVerbose(), preserve, obfuscator, getArguments(), getJad());
+                Vector preserve = getPreserve();
+                getUtility().getPreserveList(getJad(), preserve);
+                getUtility().obfuscate(getJarFile(), tmpFile, getFullClasspath(), getVerbose(), preserve, obfuscator, getArguments(), getJad());
 
-				if (getToJarFile() == null) {
-					setTojarfile(getJarFile());
-				}
+                if (getToJarFile() == null) {
+                    setTojarfile(getJarFile());
+                }
 
-				if (!getToJarFile().delete()) {
-					log("Unable to delete " + getToJarFile(), Project.MSG_WARN);
-				}
+                if (!getToJarFile().delete()) {
+                    log("Unable to delete " + getToJarFile(), Project.MSG_WARN);
+                }
 
-				if (!tmpFile.renameTo(getToJarFile())) {
-					log("Unable to rename " + tmpFile, Project.MSG_WARN);
-				}
+                if (!tmpFile.renameTo(getToJarFile())) {
+                    log("Unable to rename " + tmpFile, Project.MSG_WARN);
+                }
 
-				updateJad();
-			}
-			finally {
-				getUtility().delete(tmpDir);
-			}
-		}
-		catch (Exception e) {
-			throw new BuildException(e);
-		}
-	}
+                updateJad();
+            } finally {
+                getUtility().delete(tmpDir);
+            }
+        } catch (Exception e) {
+            throw new BuildException(e);
+        }
+    }
 }

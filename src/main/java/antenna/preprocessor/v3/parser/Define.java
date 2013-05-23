@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -23,7 +23,7 @@ package antenna.preprocessor.v3.parser;
  * used in nested blocks. Global variables defined in the project configuration
  * properties override these temporary variables.
  * </p>
- * 
+ *
  * @author Omry Yadan
  */
 public class Define {
@@ -40,7 +40,7 @@ public class Define {
 
     /**
      * Creates a new representation for the <code>#Define</code> directive.
-     * 
+     *
      * @param key the defined key
      */
     public Define(String key) {
@@ -50,10 +50,10 @@ public class Define {
 
     /**
      * Creates a new representation for the <code>#Define</code> directive.
-     * 
-     * @param key the defined key
+     *
+     * @param key   the defined key
      * @param value the Literal representation for the <code>#Define</code>
-     *                directive.
+     *              directive.
      */
     public Define(String key, Literal value) {
         this.m_key = key;
@@ -81,7 +81,7 @@ public class Define {
 
     /**
      * Get the key from the <code>#Define</code> directive.
-     * 
+     *
      * @return the key value
      */
     public String getKey() {
@@ -90,7 +90,7 @@ public class Define {
 
     /**
      * Get the Literal representation for the <code>#Define</code> directive.
-     * 
+     *
      * @return the Literal representation
      */
     public Literal getLiteral() {

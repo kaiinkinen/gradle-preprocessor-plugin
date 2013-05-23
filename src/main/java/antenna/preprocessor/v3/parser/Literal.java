@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -15,7 +15,7 @@ package antenna.preprocessor.v3.parser;
 /**
  * This class represents any notation for representing a value within the source
  * code.
- * 
+ *
  * @author Omry Yadan
  */
 public class Literal {
@@ -67,8 +67,8 @@ public class Literal {
 
     /**
      * Creates a new literal representation.
-     * 
-     * @param type the literal value
+     *
+     * @param type  the literal value
      * @param value the literal type
      */
     public Literal(int type, String value) {
@@ -82,68 +82,68 @@ public class Literal {
 
         switch (type) {
 
-        case SYMBOL:
-            break;
+            case SYMBOL:
+                break;
 
-        case NUMBER: {
-            try {
-                Double.parseDouble(value);
-            } catch (NumberFormatException e1) {
-                throw new IllegalArgumentException(
-                        "Unsupported numerical value : " + value);
-            }
-            break;
-        }
-
-        case STRING: {
-
-            /* Remove " and ' from the string */
-            if (value.startsWith("\"") || value.startsWith("\'")) {
-                value = value.substring(1);
-            }
-            if (value.endsWith("\"") || value.endsWith("\'")) {
-                value = value.substring(0, value.length() - 1);
-            }
-
-            if (value.toLowerCase().equals(BOOLEAN_FALSE)
-                    || value.toLowerCase().equals(BOOLEAN_TRUE)) {
-                m_type = BOOLEAN;
-            } else {
+            case NUMBER: {
                 try {
                     Double.parseDouble(value);
-                    m_type = NUMBER;
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException e1) {
+                    throw new IllegalArgumentException(
+                            "Unsupported numerical value : " + value);
                 }
+                break;
             }
-            break;
-        }
 
-        case APPLexer.FALSE:
-        case APPLexer.TRUE:
-        case BOOLEAN: {
+            case STRING: {
 
-            m_type = BOOLEAN;
-            if (!value.toLowerCase().equals(BOOLEAN_FALSE)
-                    && !value.toLowerCase().equals(BOOLEAN_TRUE))
-                throw new IllegalArgumentException("Invalid boolean value : "
-                        + value);
-            value = value.toLowerCase();
-            break;
-        }
+                /* Remove " and ' from the string */
+                if (value.startsWith("\"") || value.startsWith("\'")) {
+                    value = value.substring(1);
+                }
+                if (value.endsWith("\"") || value.endsWith("\'")) {
+                    value = value.substring(0, value.length() - 1);
+                }
 
-        case APPLexer.DEBUG:
-        case APPLexer.INFO:
-        case APPLexer.WARN:
-        case APPLexer.ERROR:
-        case APPLexer.FATAL:
-        case DEBUG_LEVEL: {
+                if (value.toLowerCase().equals(BOOLEAN_FALSE)
+                        || value.toLowerCase().equals(BOOLEAN_TRUE)) {
+                    m_type = BOOLEAN;
+                } else {
+                    try {
+                        Double.parseDouble(value);
+                        m_type = NUMBER;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+                break;
+            }
 
-            m_type = DEBUG_LEVEL;
-            break;
-        }
+            case APPLexer.FALSE:
+            case APPLexer.TRUE:
+            case BOOLEAN: {
 
-        default:
-            throw new IllegalArgumentException("Unsupported type : " + type);
+                m_type = BOOLEAN;
+                if (!value.toLowerCase().equals(BOOLEAN_FALSE)
+                        && !value.toLowerCase().equals(BOOLEAN_TRUE))
+                    throw new IllegalArgumentException("Invalid boolean value : "
+                            + value);
+                value = value.toLowerCase();
+                break;
+            }
+
+            case APPLexer.DEBUG:
+            case APPLexer.INFO:
+            case APPLexer.WARN:
+            case APPLexer.ERROR:
+            case APPLexer.FATAL:
+            case DEBUG_LEVEL: {
+
+                m_type = DEBUG_LEVEL;
+                break;
+            }
+
+            default:
+                throw new IllegalArgumentException("Unsupported type : " + type);
         }
 
         m_value = value;
@@ -156,14 +156,14 @@ public class Literal {
      */
     public String toString() {
         switch (m_type) {
-        case STRING:
-            return "\"" + m_value + "\"";
-        case NUMBER:
-        case BOOLEAN:
-        case SYMBOL:
-        case DEBUG_LEVEL:
-        default:
-            return m_value;
+            case STRING:
+                return "\"" + m_value + "\"";
+            case NUMBER:
+            case BOOLEAN:
+            case SYMBOL:
+            case DEBUG_LEVEL:
+            default:
+                return m_value;
 
         }
     }
@@ -183,7 +183,7 @@ public class Literal {
 
     /**
      * Check if the literal value is <code>false</code>.
-     * 
+     *
      * @return if the literal value is <code>false</code>
      */
     public boolean isFalse() {
@@ -192,7 +192,7 @@ public class Literal {
 
     /**
      * Check if the literal value is <code>true</code>.
-     * 
+     *
      * @return if the literal value is <code>true</code>
      */
     public boolean isTrue() {
@@ -201,7 +201,7 @@ public class Literal {
 
     /**
      * Gets the value of the literal.
-     * 
+     *
      * @return the Literal value
      */
     public String getValue() {
@@ -210,7 +210,7 @@ public class Literal {
 
     /**
      * Check if the literal is a debug level directive.
-     * 
+     *
      * @return if the literal is a debug level
      */
     public boolean isDebugLevel() {
@@ -219,7 +219,7 @@ public class Literal {
 
     /**
      * Check if the literal is a number.
-     * 
+     *
      * @return if the literal is a number
      */
     public boolean isNumber() {
@@ -228,7 +228,7 @@ public class Literal {
 
     /**
      * Check if the literal is a String.
-     * 
+     *
      * @return if the literal is a String
      */
     public boolean isString() {
@@ -237,7 +237,7 @@ public class Literal {
 
     /**
      * Check if the literal is a Symbol.
-     * 
+     *
      * @return if the literal is a Symbol
      */
     public boolean isSymbol() {
@@ -246,7 +246,7 @@ public class Literal {
 
     /**
      * Check if the literal is a Boolean.
-     * 
+     *
      * @return if the literal is a Boolean
      */
     public boolean isBoolean() {

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Diego Sandin (Motorola) - Initial implementation
  */
@@ -21,7 +21,7 @@ import org.antlr.runtime.tree.CommonTree;
  * The AST differs from a parse tree by omitting nodes and edges for syntax
  * rules that do not affect the semantics of the program.
  * </p>
- * 
+ *
  * @author Diego Sandin
  */
 public class CommonAST extends CommonTree {
@@ -29,7 +29,7 @@ public class CommonAST extends CommonTree {
     /**
      * Walks trough a valid AST tree filing each node with information about the
      * the node's {@link #parent} and index.
-     * 
+     *
      * @param ast the AST tree to fill information.
      */
     public static void fillParentInfo(CommonAST ast) {
@@ -43,14 +43,14 @@ public class CommonAST extends CommonTree {
     /**
      * Walks trough a valid AST tree filing each node with information about the
      * the node's {@link #parent} and index.
-     * 
-     * @param ast the AST tree to fill information
+     *
+     * @param ast       the AST tree to fill information
      * @param astParent the current node parent. The parent can be
-     *                <code>null</code>.
-     * @param index the current node index. Index must be 0 or higher.
+     *                  <code>null</code>.
+     * @param index     the current node index. Index must be 0 or higher.
      */
     private static void fillParentInfo(CommonAST ast, CommonAST astParent,
-            int index) {
+                                       int index) {
 
         if ((ast != null) && (index >= 0)) {
             ast.setParent(astParent);
@@ -85,7 +85,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * Creates a new abstract syntax tree (AST) node
-     * 
+     *
      * @param node tree node that wrappers a Token object.
      */
     public CommonAST(CommonTree node) {
@@ -94,7 +94,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * Creates a new abstract syntax tree (AST) node.
-     * 
+     *
      * @param t atomic parse element
      */
     public CommonAST(Token t) {
@@ -103,7 +103,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * The node index in the tree.
-     * 
+     *
      * @return the index
      */
     public int getIndex() {
@@ -112,7 +112,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * Return the node's parent.
-     * 
+     *
      * @return the parent
      */
     public CommonAST getParent() {
@@ -121,7 +121,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * Specifies the node's index in the tree.
-     * 
+     *
      * @param index the index to set
      */
     public void setIndex(int index) {
@@ -130,7 +130,7 @@ public class CommonAST extends CommonTree {
 
     /**
      * Specifies the node's parent.
-     * 
+     *
      * @param parent the parent to set
      */
     public void setParent(CommonAST parent) {

@@ -20,19 +20,9 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.misc.Utility;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Jar;
@@ -41,12 +31,17 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.types.ZipFileSet;
 
-import de.pleumann.antenna.misc.Conditional;
-import de.pleumann.antenna.misc.JadFile;
-import de.pleumann.antenna.misc.Utility;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.jar.*;
+import java.util.zip.ZipEntry;
 
 public class WtkPackage extends Jar {
-       public class Argument extends Conditional {
+    public class Argument extends Conditional {
         String value;
 
         public Argument(Project project) {
@@ -61,6 +56,7 @@ public class WtkPackage extends Jar {
             return value;
         }
     }
+
     public class Preserve extends Conditional {
 
         private String value = "";
@@ -91,9 +87,9 @@ public class WtkPackage extends Jar {
     private File jarFile;
 
     private File jadFile;
-    
+
     private String encoding;
-    
+
     private String manifestEncoding;
 
     private boolean autoversion;
@@ -115,7 +111,7 @@ public class WtkPackage extends Jar {
     private Path libclasspath;
 
     private File manifest;
-    
+
     private Vector m_excludeFromManifest;
 
 //    private boolean smartlink;
@@ -129,10 +125,10 @@ public class WtkPackage extends Jar {
     public void init() throws BuildException {
         super.init();
         utility = Utility.getInstance(getProject(), this);
-        
+
         config = "CLDC-" + utility.getCldcVersion();
         profile = "MIDP-" + utility.getMidpVersion();
-        
+
         condition = new Conditional(getProject());
         classpath = new Path(getProject());
         setUpdate(false);
@@ -143,7 +139,7 @@ public class WtkPackage extends Jar {
         preserve.addElement(pre);
         return pre;
     }
-    
+
     public Argument createArgument() {
         Argument a = new Argument(getProject());
         arguments.addElement(a);
@@ -160,6 +156,7 @@ public class WtkPackage extends Jar {
         }
         return result;
     }
+
     public void setVerbose(boolean aVerbose) {
         this.verbose = aVerbose;
     }
@@ -172,16 +169,16 @@ public class WtkPackage extends Jar {
     public void setJadfile(File jad) {
         this.jadFile = jad;
     }
-    
+
     public void setEncoding(String encoding) {
         super.setEncoding(encoding);
-        
+
         this.encoding = encoding;
     }
-    
+
     public void setManifestEncoding(String manifestEncoding) {
         super.setManifestEncoding(manifestEncoding);
-        
+
         this.manifestEncoding = manifestEncoding;
     }
 
@@ -204,8 +201,7 @@ public class WtkPackage extends Jar {
     public void setNonative(boolean b) {
         if (b) {
             flags = flags | Utility.PREVERIFY_NONATIVE;
-        }
-        else {
+        } else {
             flags = flags & ~Utility.PREVERIFY_NONATIVE;
         }
     }
@@ -213,8 +209,7 @@ public class WtkPackage extends Jar {
     public void setNofloat(boolean b) {
         if (b) {
             flags = flags | Utility.PREVERIFY_NOFLOAT;
-        }
-        else {
+        } else {
             flags = flags & ~Utility.PREVERIFY_NOFLOAT;
         }
     }
@@ -222,14 +217,13 @@ public class WtkPackage extends Jar {
     public void setNofinalize(boolean b) {
         if (b) {
             flags = flags | Utility.PREVERIFY_NOFINALIZE;
-        }
-        else {
+        } else {
             flags = flags & ~Utility.PREVERIFY_NOFINALIZE;
         }
     }
 
     public void setSmartlink(boolean smartlink) {
-    	log("SmartLink is not supported in WtkPackage, use WtkSmartLink", Project.MSG_WARN);
+        log("SmartLink is not supported in WtkPackage, use WtkSmartLink", Project.MSG_WARN);
     }
 
     public void setObfuscate(boolean obfuscate) {
@@ -375,8 +369,7 @@ public class WtkPackage extends Jar {
             jos.close();
             utility.delete(jarFile);
             utility.copy(tmp, jarFile);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             throw new BuildException("Error re-ordering manifest " + ex.getMessage(), ex);
         }
@@ -401,8 +394,7 @@ public class WtkPackage extends Jar {
             JadFile jad = new JadFile();
             try {
                 jad.load(jadFile.getAbsolutePath(), encoding);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new BuildException("Error loading JAD file", ex);
             }
 
@@ -415,37 +407,29 @@ public class WtkPackage extends Jar {
 
             JadFile man = new JadFile();
             if (manifest == null) {
-            	Vector excludes = new Vector();
-            	for (int i = 0; m_excludeFromManifest != null && i < m_excludeFromManifest.size(); i++)
-				{
-            		Exclude_From_Manifest ex = (Exclude_From_Manifest)m_excludeFromManifest.get(i);
-            		if (ex.name != null)
-            		{
-            			excludes.add(ex.name);
-            		}
-            		else
-           			if (ex.list != null)
-            		{
-            			StringTokenizer tok = new StringTokenizer(ex.list, ",");
-            			while(tok.hasMoreElements()) excludes.add(tok.nextToken().trim());
-            		}
-           			else
-           				throw new BuildException("At least one of list or name must not be null in Exclude_From_Manifest");
-				}
-            	String eStr[] = new String[excludes.size()];
-            	excludes.copyInto(eStr);
-            	man.setExcludeFromManifest(eStr);
+                Vector excludes = new Vector();
+                for (int i = 0; m_excludeFromManifest != null && i < m_excludeFromManifest.size(); i++) {
+                    Exclude_From_Manifest ex = (Exclude_From_Manifest) m_excludeFromManifest.get(i);
+                    if (ex.name != null) {
+                        excludes.add(ex.name);
+                    } else if (ex.list != null) {
+                        StringTokenizer tok = new StringTokenizer(ex.list, ",");
+                        while (tok.hasMoreElements()) excludes.add(tok.nextToken().trim());
+                    } else
+                        throw new BuildException("At least one of list or name must not be null in Exclude_From_Manifest");
+                }
+                String eStr[] = new String[excludes.size()];
+                excludes.copyInto(eStr);
+                man.setExcludeFromManifest(eStr);
                 man.assign(jad, true);
                 man.setValue("MIDlet-Jar-URL", null);
                 man.setValue("MIDlet-Jar-Size", null);
                 man.setValue("MicroEdition-Configuration", config);
                 man.setValue("MicroEdition-Profile", profile);
-            }
-            else {
+            } else {
                 try {
                     man.load(manifest.getAbsolutePath(), manifestEncoding);
-                }
-                catch (IOException ex) {
+                } catch (IOException ex) {
                     throw new BuildException("Error opening MANIFEST.MF file ", ex);
                 }
             }
@@ -460,8 +444,7 @@ public class WtkPackage extends Jar {
             File manFile = (manifest == null ? new File(tmpDir + "/MANIFEST.MF") : manifest);
             try {
                 man.save("" + manFile, manifestEncoding);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new BuildException("Error writing MANIFEST.MF file", ex);
             }
 
@@ -479,8 +462,7 @@ public class WtkPackage extends Jar {
                             zip.setSrc(lib);
                             zip.createExclude().setName("META-INF/**");
                             addZipfileset(zip);
-                        }
-                        else {
+                        } else {
                             FileSet dir = new FileSet();
                             dir.setDir(lib);
                             dir.createExclude().setName("META-INF/**");
@@ -532,37 +514,32 @@ public class WtkPackage extends Jar {
             log("Updating JAD file " + jadFile);
             try {
                 jad.save("" + jadFile, encoding);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new BuildException("Error processing JAD file", ex);
             }
-        }
-        finally {
+        } finally {
             utility.delete(tmpDir);
         }
     }
-    
-	public Exclude_From_Manifest createExclude_From_Manifest() {
-		if (m_excludeFromManifest == null) m_excludeFromManifest = new Vector();
-		Exclude_From_Manifest a = new Exclude_From_Manifest();
-		m_excludeFromManifest.addElement(a);
-		return a;
-	}
-    
-    
-    public static class Exclude_From_Manifest
-    {
-    	private String name;
-    	private String list;
 
-		public void setName(String name)
-    	{
-			this.name = name;
-    	}
-		
-		public void setList(String list)
-		{
-			this.list = list;
-		}
+    public Exclude_From_Manifest createExclude_From_Manifest() {
+        if (m_excludeFromManifest == null) m_excludeFromManifest = new Vector();
+        Exclude_From_Manifest a = new Exclude_From_Manifest();
+        m_excludeFromManifest.addElement(a);
+        return a;
+    }
+
+
+    public static class Exclude_From_Manifest {
+        private String name;
+        private String list;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setList(String list) {
+            this.list = list;
+        }
     }
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -18,7 +18,7 @@ import org.antlr.runtime.tree.TreeAdaptor;
 
 /**
  * The abstract syntax tree for the preprocessor line.
- * 
+ *
  * @author Omry Yadan
  */
 public class PPLineAST extends CommonAST {
@@ -50,7 +50,7 @@ public class PPLineAST extends CommonAST {
 
     /**
      * Creates a new preprocessor line abstract syntax tree representation
-     * 
+     *
      * @param tok the line token
      */
     public PPLineAST(final Token tok) {
@@ -65,7 +65,7 @@ public class PPLineAST extends CommonAST {
 
     /**
      * Return the column number that is being parsed by preprocessor
-     * 
+     *
      * @return column number
      */
     public int getColumn() {
@@ -74,7 +74,7 @@ public class PPLineAST extends CommonAST {
 
     /**
      * Return the line number that is being parsed by preprocessor
-     * 
+     *
      * @return line number
      */
     public int getLine() {

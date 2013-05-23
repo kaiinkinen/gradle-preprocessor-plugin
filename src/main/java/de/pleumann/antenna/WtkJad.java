@@ -20,131 +20,134 @@
  */
 package de.pleumann.antenna;
 
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.misc.Utility;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
-
-import org.apache.tools.ant.*;
-
-import de.pleumann.antenna.misc.*;
 
 public class WtkJad extends Task {
 
-	public class Attribute extends Conditional {
-		String name;
+    public class Attribute extends Conditional {
+        String name;
 
-		String value;
+        String value;
 
         public Attribute(Project project) {
             super(project);
         }
-        
-		public void setName(String name) {
-			this.name = name;
-		}
 
-		public void setValue(String value) {
-			this.value = value;
-		}
-	}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-	public class MIDlet extends Conditional {
-		String name = "";
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
 
-		String cls = "";
+    public class MIDlet extends Conditional {
+        String name = "";
 
-		String icon = "";
+        String cls = "";
+
+        String icon = "";
 
         public MIDlet(Project project) {
             super(project);
         }
-        
-		public void setName(String name) {
-			this.name = name;
-		}
 
-		public void setClass(String cls) {
-			this.cls = cls;
-		}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		public void setIcon(String icon) {
-			this.icon = icon;
-		}
-	}
+        public void setClass(String cls) {
+            this.cls = cls;
+        }
+
+        public void setIcon(String icon) {
+            this.icon = icon;
+        }
+    }
 
     private Conditional condition;
-    
+
     private Utility utility;
 
-	private Vector attributes = new Vector();
+    private Vector attributes = new Vector();
 
-	private Vector midlets = new Vector();
+    private Vector midlets = new Vector();
 
-	private File jadFile;
+    private File jadFile;
 
-	private File jarFile;
-    
+    private File jarFile;
+
     private File manifest;
 
-	private String name;
+    private String name;
 
-	private String vendor;
+    private String vendor;
 
-	private String version;
+    private String version;
 
     private String config;
 
     private String profile;
 
     private boolean autoversion;
-    
-	private boolean update;
+
+    private boolean update;
 
     private String target;
-    
+
     private String encoding;
-    
+
     /**
      * The id of the JadAttrib for this jad, links a JadAttrib object to a Jad file produced by WtkJad
      */
     private String attribName;
-    
+
     public void init() throws BuildException {
         super.init();
         utility = Utility.getInstance(getProject(), this);
         condition = new Conditional(getProject());
-        
+
         config = "CLDC-" + utility.getCldcVersion();
         profile = "MIDP-" + utility.getMidpVersion();
     }
-	public void setJadfile(File file) {
-		jadFile = file;
-	}
 
-	public void setJarfile(File file) {
-		jarFile = file;
-	}
+    public void setJadfile(File file) {
+        jadFile = file;
+    }
+
+    public void setJarfile(File file) {
+        jarFile = file;
+    }
 
     public void setTarget(String url) {
         target = url;
     }
 
-	public void setUpdate(boolean update) {
-		this.update = update;
-	}
+    public void setUpdate(boolean update) {
+        this.update = update;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setVendor(String vendor) {
-		this.vendor = vendor;
-	}
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public void setAutoversion(boolean versioning) {
         this.autoversion = versioning;
@@ -162,26 +165,26 @@ public class WtkJad extends Task {
         this.manifest = manifest;
     }
 
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-	}
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
 
-	public Attribute createAttribute() {
-		Attribute a = new Attribute(getProject());
-		attributes.addElement(a);
-		return a;
-	}
+    public Attribute createAttribute() {
+        Attribute a = new Attribute(getProject());
+        attributes.addElement(a);
+        return a;
+    }
 
-	public MIDlet createMidlet() {
-		MIDlet m = new MIDlet(getProject());
-		midlets.addElement(m);
-		return m;
-	}
+    public MIDlet createMidlet() {
+        MIDlet m = new MIDlet(getProject());
+        midlets.addElement(m);
+        return m;
+    }
 
     public void setIf(String s) {
         condition.setIf(s);
     }
-    
+
     public void setUnless(String s) {
         condition.setUnless(s);
     }
@@ -190,85 +193,82 @@ public class WtkJad extends Task {
         return condition.isActive();
     }
 
-	public void execute() throws BuildException {
+    public void execute() throws BuildException {
         if (!isActive()) return;
-        
+
         if (jadFile == null) {
             throw new BuildException("JAD file name needed");
         }
-        
+
         log((update ? "Updating" : "Creating") + " JAD file " + jadFile);
-        
-		JadFile jad = new JadFile();
 
-		if (update) {
-			try {
-				jad.load(jadFile.getPath(), encoding);
-			}
-			catch (IOException ignored) {
-			}
-		}
+        JadFile jad = new JadFile();
 
-		if (jarFile != null) {
+        if (update) {
+            try {
+                jad.load(jadFile.getPath(), encoding);
+            } catch (IOException ignored) {
+            }
+        }
+
+        if (jarFile != null) {
             String url = jarFile.getName();
             if (target != null && target.length() != 0) {
-                if(!target.startsWith("http://") && !target.startsWith("http://"))
-                    url =  "http://" + target + "/" + url;
+                if (!target.startsWith("http://") && !target.startsWith("http://"))
+                    url = "http://" + target + "/" + url;
                 else
-                    url = target + "/" +url;
+                    url = target + "/" + url;
             }
-            
-			jad.setValue("MIDlet-Jar-URL", url);
-			jad.setValue("MIDlet-Jar-Size", "" + jarFile.length());
-		}
 
-		if (name != null)
-			jad.setValue("MIDlet-Name", name);
-		if (vendor != null)
-			jad.setValue("MIDlet-Vendor", vendor);
-		if (version != null)
-			jad.setValue("MIDlet-Version", version);
+            jad.setValue("MIDlet-Jar-URL", url);
+            jad.setValue("MIDlet-Jar-Size", "" + jarFile.length());
+        }
 
-		if (midlets.size() != 0) {
-			if (update) {
-				// Clear old MIDlet list
-				for (int i = jad.getMIDletCount(); i > 0; i--) {
-					jad.setValue("MIDlet-" + i, null);
-				}
-			}
+        if (name != null)
+            jad.setValue("MIDlet-Name", name);
+        if (vendor != null)
+            jad.setValue("MIDlet-Vendor", vendor);
+        if (version != null)
+            jad.setValue("MIDlet-Version", version);
 
-			// Set new MIDlet list
-			int number = 1;
-			for (int i = 0; i < midlets.size(); i++) {
-				MIDlet m = (MIDlet) midlets.elementAt(i);
-                if (m.isActive()) {
-    				jad.setValue("MIDlet-" + (number++), m.name + ", " + m.icon + ", " + m.cls);
+        if (midlets.size() != 0) {
+            if (update) {
+                // Clear old MIDlet list
+                for (int i = jad.getMIDletCount(); i > 0; i--) {
+                    jad.setValue("MIDlet-" + i, null);
                 }
-			}
-		}
-		
-		// populate attributes from JadAttributes external task, if it has attributes for this jad.
-		if (attribName != null && JadAttributes.hasAttributesFor(attribName))
-		{
-			String pairs[][] = JadAttributes.getAttributesFor(this, attribName);
-			for (int i = 0; i < pairs.length; i++)
-			{
-				Attribute at = new Attribute(getProject());
-				at.name = pairs[i][0];
-				at.value = pairs[i][1];
-				attributes.addElement(at);
-			}
-		}
-	
-		// Set attributes. If value is null, existing attribute is
+            }
+
+            // Set new MIDlet list
+            int number = 1;
+            for (int i = 0; i < midlets.size(); i++) {
+                MIDlet m = (MIDlet) midlets.elementAt(i);
+                if (m.isActive()) {
+                    jad.setValue("MIDlet-" + (number++), m.name + ", " + m.icon + ", " + m.cls);
+                }
+            }
+        }
+
+        // populate attributes from JadAttributes external task, if it has attributes for this jad.
+        if (attribName != null && JadAttributes.hasAttributesFor(attribName)) {
+            String pairs[][] = JadAttributes.getAttributesFor(this, attribName);
+            for (int i = 0; i < pairs.length; i++) {
+                Attribute at = new Attribute(getProject());
+                at.name = pairs[i][0];
+                at.value = pairs[i][1];
+                attributes.addElement(at);
+            }
+        }
+
+        // Set attributes. If value is null, existing attribute is
         // deleted (makes sense in update mode)
-		for (int i = 0; i < attributes.size(); i++) {
-			Attribute a = (Attribute) attributes.elementAt(i);
-			if (a.isActive() && a.name != null) {
-				jad.setValue(a.name, a.value);
-			}
-		}
-        
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute a = (Attribute) attributes.elementAt(i);
+            if (a.isActive() && a.name != null) {
+                jad.setValue(a.name, a.value);
+            }
+        }
+
         // If versioning is requested, increase version number or set to "1.0.0"
         if (autoversion) {
             jad.setValue("MIDlet-Version", utility.getNewVersion(jad.getValue("MIDlet-Version")));
@@ -276,14 +276,13 @@ public class WtkJad extends Task {
 
         try {
             jad.save(jadFile.getPath(), encoding);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BuildException(ex);
         }
-        
+
         if (manifest != null) {
             log("Creating MANIFEST file " + manifest);
-            
+
             jad.setValue("MIDlet-Jar-URL", null);
             jad.setValue("MIDlet-Jar-Size", null);
 
@@ -292,18 +291,16 @@ public class WtkJad extends Task {
 
             try {
                 jad.save(manifest.getPath(), encoding);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new BuildException(ex);
             }
         }
-	}
+    }
 
-	/**
-	 * @param attribName The attribName to set.
-	 */
-	public void setAttribName(String attribName)
-	{
-		this.attribName = attribName;
-	}
+    /**
+     * @param attribName The attribName to set.
+     */
+    public void setAttribName(String attribName) {
+        this.attribName = attribName;
+    }
 }

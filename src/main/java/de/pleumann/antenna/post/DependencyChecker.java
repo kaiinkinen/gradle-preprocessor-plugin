@@ -20,8 +20,12 @@
  */
 package de.pleumann.antenna.post;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -45,22 +49,21 @@ public class DependencyChecker {
             for (int i = 0; i < classpath.size(); i++) {
                 Object o = classpath.elementAt(i);
                 if (o instanceof ZipFile) {
-                    ((ZipFile)o).close();
+                    ((ZipFile) o).close();
                 }
             }
-    
+
             for (int i = 0; i < bootclasspath.size(); i++) {
                 Object o = bootclasspath.elementAt(i);
                 if (o instanceof ZipFile) {
-                    ((ZipFile)o).close();
+                    ((ZipFile) o).close();
                 }
             }
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
         }
 
     }
-        
+
     private void splitPath(String source, Vector target) {
         source = source + File.pathSeparatorChar;
 
@@ -72,12 +75,10 @@ public class DependencyChecker {
                 File file = new File(t);
                 if (file.isDirectory()) {
                     target.addElement(file);
-                }
-                else {
+                } else {
                     try {
-                       target.addElement(new ZipFile(file));
-                    }
-                    catch (Exception ignored) {
+                        target.addElement(new ZipFile(file));
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -91,26 +92,25 @@ public class DependencyChecker {
     public ClassFile loadClass(Vector classpath, String name) {
         for (int i = 0; i < classpath.size(); i++) {
             Object o = classpath.elementAt(i);
-            
+
             if (o instanceof File) {
-                ClassFile cf = loadClassFromDir((File)o, name);
+                ClassFile cf = loadClassFromDir((File) o, name);
                 if (cf != null) return cf;
-            }
-            else {
-                ClassFile cf = loadClassFromZip((ZipFile)o, name);
+            } else {
+                ClassFile cf = loadClassFromZip((ZipFile) o, name);
                 if (cf != null) return cf;
             }
         }
 
         return null;
     }
-    
+
     /**
      * Loads a class or returns an existing entry from the hashtable.
      */
     public ClassFile loadClass(String name) throws ClassNotFoundException {
         ClassFile c = null;
-        
+
         c = (ClassFile) classes.get(name);
         if (c != null) {
             return c;
@@ -120,7 +120,7 @@ public class DependencyChecker {
         if (c != null) {
             return c;
         }
-        
+
         // System.out.println("Loading class: " + name);
 
         c = loadClass(classpath, name);
@@ -129,7 +129,7 @@ public class DependencyChecker {
             resolveClass(c);
             return c;
         }
-        
+
         c = loadClass(bootclasspath, name);
         if (c != null) {
             bootclasses.put(name, c);
@@ -147,8 +147,7 @@ public class DependencyChecker {
         if (entry != null) {
             try {
                 return new ClassFile(zip.getInputStream(entry));
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
@@ -163,8 +162,7 @@ public class DependencyChecker {
         if (file.exists()) {
             try {
                 return new ClassFile(new FileInputStream(file));
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
@@ -175,22 +173,22 @@ public class DependencyChecker {
     public void addRootClass(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         loadClass(name);
     }
-    
+
     public Vector getClassNames() {
         Vector result = new Vector();
-        
+
         Enumeration e = classes.keys();
         while (e.hasMoreElements()) {
             result.addElement(e.nextElement());
         }
-        
+
         return result;
     }
-    
+
     public void resolveClass(ClassFile cf) throws ClassNotFoundException {
         for (int i = 0; i < cf.getRequiredClassCount(); i++) {
             loadClass(cf.getRequiredClass(i));
         }
     }
-    
+
 }

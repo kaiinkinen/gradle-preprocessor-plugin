@@ -20,103 +20,98 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-import java.util.Vector;
-
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.post.DependencyChecker;
+import de.pleumann.antenna.post.PostProcessor;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Jar;
 import org.apache.tools.ant.types.FileSet;
 
-import de.pleumann.antenna.misc.JadFile;
-import de.pleumann.antenna.post.DependencyChecker;
-import de.pleumann.antenna.post.PostProcessor;
+import java.io.File;
+import java.util.Vector;
 
 public class WtkSmartLink extends PostProcessor {
 
-	public void execute() throws BuildException {
+    public void execute() throws BuildException {
         if (!isActive()) return;
-        
-		if (getJarFile() == null) {
-			throw new BuildException("Need a JAR file");
-		}
 
-		try {
-			try {
-				File tmpFile = getToJarFile();
-				if (tmpFile == null) {
-					tmpFile = new File(getUtility().getTempDir(), "output.jar");
-				}
+        if (getJarFile() == null) {
+            throw new BuildException("Need a JAR file");
+        }
 
-				JadFile jad = getJad();
+        try {
+            try {
+                File tmpFile = getToJarFile();
+                if (tmpFile == null) {
+                    tmpFile = new File(getUtility().getTempDir(), "output.jar");
+                }
 
-				File tmpDir = new File(getUtility().getTempDir(), "files");
+                JadFile jad = getJad();
 
-				Expand expand = new Expand();
-				expand.setProject(getProject());
-				expand.setTaskName(getTaskName());
-				expand.setSrc(getJarFile());
-				expand.setDest(tmpDir);
-				expand.setOverwrite(true);
-				expand.execute();
+                File tmpDir = new File(getUtility().getTempDir(), "files");
 
-				Jar zip = new Jar();
-				zip.setProject(getProject());
-				zip.setTaskName(getTaskName());
-				zip.setDestFile(tmpFile);
-				zip.setDefaultexcludes(false);
+                Expand expand = new Expand();
+                expand.setProject(getProject());
+                expand.setTaskName(getTaskName());
+                expand.setSrc(getJarFile());
+                expand.setDest(tmpDir);
+                expand.setOverwrite(true);
+                expand.execute();
 
-				zip.setManifest(new File(tmpDir + "/META-INF/MANIFEST.MF"));
+                Jar zip = new Jar();
+                zip.setProject(getProject());
+                zip.setTaskName(getTaskName());
+                zip.setDestFile(tmpFile);
+                zip.setDefaultexcludes(false);
 
-				FileSet nonClasses = new FileSet();
-				nonClasses.setDir(tmpDir);
-				nonClasses.setIncludes("**/*");
-				nonClasses.setExcludes("**/*.class");
+                zip.setManifest(new File(tmpDir + "/META-INF/MANIFEST.MF"));
 
-				FileSet classes = new FileSet();
-				classes.setDir(tmpDir);
+                FileSet nonClasses = new FileSet();
+                nonClasses.setDir(tmpDir);
+                nonClasses.setIncludes("**/*");
+                nonClasses.setExcludes("**/*.class");
 
-				zip.addFileset(classes);
-				zip.addFileset(nonClasses);
+                FileSet classes = new FileSet();
+                classes.setDir(tmpDir);
+
+                zip.addFileset(classes);
+                zip.addFileset(nonClasses);
 
                 Vector preserve = new Vector(getPreserve());
                 getUtility().getPreserveList(jad, preserve);
-                
-				DependencyChecker checker =
-					new DependencyChecker("" + tmpDir, getFullClasspath());
-				for (int i = 0; i < preserve.size(); i++) {
-					try {
-						checker.addRootClass(preserve.elementAt(i).toString());
-					}
-					catch (Exception e) {
-						throw new BuildException(e);
-					}
-				}
 
-				Vector link = checker.getClassNames();
-				for (int i = 0; i < link.size(); i++) {
-					String name = (String) link.elementAt(i);
-					name = name.replace('.', '/') + ".class";
-					classes.setIncludes(name);
-				}
+                DependencyChecker checker =
+                        new DependencyChecker("" + tmpDir, getFullClasspath());
+                for (int i = 0; i < preserve.size(); i++) {
+                    try {
+                        checker.addRootClass(preserve.elementAt(i).toString());
+                    } catch (Exception e) {
+                        throw new BuildException(e);
+                    }
+                }
 
-				zip.execute();
+                Vector link = checker.getClassNames();
+                for (int i = 0; i < link.size(); i++) {
+                    String name = (String) link.elementAt(i);
+                    name = name.replace('.', '/') + ".class";
+                    classes.setIncludes(name);
+                }
 
-				if (getToJarFile() == null) {
-					getJarFile().delete();
-					tmpFile.renameTo(getJarFile());
-				}
-                
+                zip.execute();
+
+                if (getToJarFile() == null) {
+                    getJarFile().delete();
+                    tmpFile.renameTo(getJarFile());
+                }
+
                 updateJad();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-				throw new BuildException(e);
-			}
-		}
-
-		finally {
-			getUtility().delete(getUtility().getTempDir());
-		}
-	}
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new BuildException(e);
+            }
+        } finally {
+            getUtility().delete(getUtility().getTempDir());
+        }
+    }
 }

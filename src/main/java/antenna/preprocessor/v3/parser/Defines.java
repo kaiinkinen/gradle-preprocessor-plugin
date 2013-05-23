@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Omry Yadan (Individual)  - Initial implementation
  *     Diego Sandin (Motorola)  - Updates after adopting ANTLR library 
@@ -12,24 +12,13 @@
  */
 package antenna.preprocessor.v3.parser;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
+import antenna.preprocessor.v3.ILineFilter;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenRewriteStream;
 
-import antenna.preprocessor.v3.ILineFilter;
+import java.io.*;
+import java.util.*;
 
 /**
  * @author Omry Yadan
@@ -47,7 +36,7 @@ public class Defines {
     private final ILineFilter m_lineFilter;
 
     /**
-     * 
+     *
      */
     public Defines() {
         m_lineFilter = null;
@@ -64,10 +53,10 @@ public class Defines {
 
     /**
      * @param defines
-     * @throws IOException 
-     * @throws RecognitionException 
+     * @throws IOException
+     * @throws RecognitionException
      */
-    public Defines(String defines) throws RecognitionException, IOException  {
+    public Defines(String defines) throws RecognitionException, IOException {
         m_lineFilter = null;
         clear();
         addDefines(defines);
@@ -76,10 +65,10 @@ public class Defines {
     /**
      * @param defines
      * @param lineFilter
-     * @throws IOException 
-     * @throws RecognitionException 
+     * @throws IOException
+     * @throws RecognitionException
      */
-    public Defines(String defines, ILineFilter lineFilter) throws RecognitionException, IOException  {
+    public Defines(String defines, ILineFilter lineFilter) throws RecognitionException, IOException {
         m_lineFilter = lineFilter;
         clear();
         addDefines(defines);
@@ -262,19 +251,19 @@ public class Defines {
         Define define = new Define(key, literal);
 
         switch (action) {
-        case -1:
-            m_defines.put(key, define);
-            break;
-        case APPLexer.ADD_IF_NEW: // LITERAL add_if_new:
-            if (!m_defines.containsKey(key))
+            case -1:
                 m_defines.put(key, define);
-            break;
-        case APPLexer.UNSET: // LITERAL unset
-            m_defines.remove(key);
-            break;
-        default:
-            /* "Unsupported action " + action */
-            throw new RecognitionException();
+                break;
+            case APPLexer.ADD_IF_NEW: // LITERAL add_if_new:
+                if (!m_defines.containsKey(key))
+                    m_defines.put(key, define);
+                break;
+            case APPLexer.UNSET: // LITERAL unset
+                m_defines.remove(key);
+                break;
+            default:
+                /* "Unsupported action " + action */
+                throw new RecognitionException();
         }
     }
 
@@ -369,6 +358,7 @@ public class Defines {
 
     /**
      * Creates a shallow copy of the Defines list
+     *
      * @return shallow copy of the Defines list
      */
     public Defines copy() {

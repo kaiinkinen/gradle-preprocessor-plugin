@@ -21,7 +21,8 @@
 package de.pleumann.antenna.misc;
 
 import java.io.*;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * A simple class to access the contents of a JAD file. The JAD file is held in
@@ -33,7 +34,7 @@ import java.util.*;
  * @author Joerg Pleumann &lt;joerg@pleumann.de&gt;
  */
 public class JadFile {
-    
+
     /**
      * Inner class that represents the definition of a single MIDlet.
      */
@@ -58,7 +59,7 @@ public class JadFile {
          * The MIDlet's main class.
          */
         private String cls;
-        
+
         /**
          * Creates a new instance of the inner class.
          */
@@ -66,7 +67,7 @@ public class JadFile {
             this.number = number;
             this.name = name;
             this.icon = icon;
-            if (cls != null) 
+            if (cls != null)
                 this.cls = cls.replace('/', '.');
         }
 
@@ -105,8 +106,8 @@ public class JadFile {
      * Holds the lines of the JAD file.
      */
     private Vector strings = new Vector();
-	private Hashtable excludeFromManifest;
-    
+    private Hashtable excludeFromManifest;
+
     /**
      * Adds a line to the JAD file.
      */
@@ -115,7 +116,7 @@ public class JadFile {
         insert(result, s);
         return result;
     }
-    
+
     /**
      * Assigns all values from another JAD file.
      */
@@ -129,16 +130,15 @@ public class JadFile {
      */
     public void assign(JadFile jad, boolean manifest) {
         clear();
-        
+
         for (int i = 0; i < jad.size(); i++) {
-        	String key = getName(jad.get(i));
-			if (!(manifest && excludeFromManifest != null && excludeFromManifest.containsKey(key)))
-        	{
-        		add(jad.get(i));
-        	}
+            String key = getName(jad.get(i));
+            if (!(manifest && excludeFromManifest != null && excludeFromManifest.containsKey(key))) {
+                add(jad.get(i));
+            }
         }
     }
-        
+
     /**
      * Clear the JAD file.
      */
@@ -170,19 +170,18 @@ public class JadFile {
 
     /**
      * returns the key value (the part before the first  ':')
-     * @param pair 
+     *
+     * @param pair
      * @return
-     */	
-	private String getName(String pair)
-	{
-		int p = pair.indexOf(':');
+     */
+    private String getName(String pair) {
+        int p = pair.indexOf(':');
         if (p != -1) {
             pair = pair.substring(0, p);
-        }
-        else
+        } else
             pair = null;
-		return pair;
-	}
+        return pair;
+    }
 
     /**
      * Gets the value belonging to the given key, or null if the key is not
@@ -195,8 +194,7 @@ public class JadFile {
             i = result.indexOf(':');
             result = result.substring(i + 1);
             return result.trim();
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -255,12 +253,10 @@ public class JadFile {
             if ((value != null) && (!value.equals(""))) {
                 add(name + ": " + value);
             }
-        }
-        else {
+        } else {
             if ((value != null) && (!value.equals(""))) {
                 set(i, name + ": " + value);
-            }
-            else {
+            } else {
                 delete(i);
             }
         }
@@ -304,18 +300,16 @@ public class JadFile {
 
         if (p1 != -1) {
             name = value.substring(0, p1).trim();
- 
+
             int p2 = value.indexOf(',', p1 + 1);
 
             if (p2 != -1) {
                 icon = value.substring(p1 + 1, p2).trim();
                 cls = value.substring(p2 + 1).trim();
-            }
-            else {
+            } else {
                 icon = value.substring(p1 + 1).trim();
             }
-        }
-        else {
+        } else {
             name = value.trim();
         }
 
@@ -330,8 +324,8 @@ public class JadFile {
 
 
     private void load(Reader isr) throws IOException {
-        clear ();   
-        BufferedReader reader = new BufferedReader (isr);
+        clear();
+        BufferedReader reader = new BufferedReader(isr);
         String s = reader.readLine();
         while (s != null) {
             /*
@@ -349,11 +343,11 @@ public class JadFile {
             if (!"".equals(s.trim())) {
                 add(s);
             }
-            
+
             s = reader.readLine();
         }
 
-        reader.close();        
+        reader.close();
     }
 
 
@@ -361,26 +355,24 @@ public class JadFile {
      * Loads the JAD file from a physical disk file.
      */
     public void load(String filename, String encoding) throws IOException {
-    	if (encoding != null) {
-			load (new InputStreamReader(new FileInputStream(filename), encoding));
-    	}
-    	else {
-			load (new InputStreamReader(new FileInputStream(filename)));
-    	}
+        if (encoding != null) {
+            load(new InputStreamReader(new FileInputStream(filename), encoding));
+        } else {
+            load(new InputStreamReader(new FileInputStream(filename)));
+        }
     }
 
     /**
      * Save the JAD file to a physical disk file.
      */
     public void save(String filename, String encoding) throws IOException {
-    	OutputStreamWriter osw;
-    	if (encoding != null) {
-    		osw = new OutputStreamWriter(new FileOutputStream(filename), encoding);
-    	}
-    	else {
-    		osw = new OutputStreamWriter(new FileOutputStream(filename));
-    	}
-    	
+        OutputStreamWriter osw;
+        if (encoding != null) {
+            osw = new OutputStreamWriter(new FileOutputStream(filename), encoding);
+        } else {
+            osw = new OutputStreamWriter(new FileOutputStream(filename));
+        }
+
         BufferedWriter writer = new BufferedWriter(osw);
 
         for (int i = 0; i < size(); i++) {
@@ -415,14 +407,12 @@ public class JadFile {
      * Sets a hashtable who's keys should not be included into the manifest.
      * this is useful to allow editing of specific JAD parameters (MIDP does not allow inconsistencies between the JAD and Manifest)
      */
-	public void setExcludeFromManifest(String excludeFromManifest[])
-	{
-		this.excludeFromManifest = new Hashtable();
-		for (int i = 0; i < excludeFromManifest.length; i++)
-		{
-			this.excludeFromManifest.put(excludeFromManifest[i], excludeFromManifest[i]);
-		}
-	}
+    public void setExcludeFromManifest(String excludeFromManifest[]) {
+        this.excludeFromManifest = new Hashtable();
+        for (int i = 0; i < excludeFromManifest.length; i++) {
+            this.excludeFromManifest.put(excludeFromManifest[i], excludeFromManifest[i]);
+        }
+    }
 
     /*
     public static void main(String[] args) {

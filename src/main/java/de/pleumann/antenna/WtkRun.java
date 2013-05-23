@@ -20,15 +20,9 @@
  */
 package de.pleumann.antenna;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.JadFile;
+import de.pleumann.antenna.misc.Utility;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -36,113 +30,111 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 
-import de.pleumann.antenna.misc.Conditional;
-import de.pleumann.antenna.misc.JadFile;
-import de.pleumann.antenna.misc.Utility;
+import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class WtkRun extends Task {
 
-	private class Redirector implements Runnable {
+    private class Redirector implements Runnable {
 
-		private InputStream input;
+        private InputStream input;
 
-		public Redirector(InputStream input) {
-			this.input = input;
-		}
+        public Redirector(InputStream input) {
+            this.input = input;
+        }
 
-		public void run() {
-			int c;
-			StringBuffer s = new StringBuffer("");
+        public void run() {
+            int c;
+            StringBuffer s = new StringBuffer("");
 
-			try {
-				while (((c = input.read()) != -1)) {
-					if (c == '\n') {
-						log(s.toString());
-						s = new StringBuffer("");
-					}
-					else if (c != '\r') {
-						s.append((char) c);
-					}
-				}
-				input.close();
+            try {
+                while (((c = input.read()) != -1)) {
+                    if (c == '\n') {
+                        log(s.toString());
+                        s = new StringBuffer("");
+                    } else if (c != '\r') {
+                        s.append((char) c);
+                    }
+                }
+                input.close();
 
-				if (s.length() != 0) {
-					log(s.toString());
-				}
-			}
-			catch (IOException ignored) {
-			}
-		}
-	}
+                if (s.length() != 0) {
+                    log(s.toString());
+                }
+            } catch (IOException ignored) {
+            }
+        }
+    }
 
-	private Utility utility;
+    private Utility utility;
 
     private Conditional condition;
-    
-	private Path classpath;
 
-	private File jadFile;
-	
-	private String encoding;
+    private Path classpath;
 
-	private String device;
+    private File jadFile;
 
-	private String heapsize;
+    private String encoding;
 
-	private boolean wait = true;
+    private String device;
+
+    private String heapsize;
+
+    private boolean wait = true;
 
     private String debugAddress;
 
     private String trace;
 
-	private File m_jadDirectory;
-	
-	private boolean m_eclipseDebugger = false;
-	private String m_sourcePath;
-        
-	public void setClasspath(Path classpath) {
-		if (this.classpath == null) {
-			this.classpath = classpath;
-		}
-		else {
-			this.classpath.append(classpath);
-		}
-	}
+    private File m_jadDirectory;
 
-	public Path getClasspath() {
-		return classpath;
-	}
+    private boolean m_eclipseDebugger = false;
+    private String m_sourcePath;
 
-	public Path createClasspath() {
-		if (classpath == null) {
-			classpath = new Path(getProject());
-		}
-		return classpath.createPath();
-	}
+    public void setClasspath(Path classpath) {
+        if (this.classpath == null) {
+            this.classpath = classpath;
+        } else {
+            this.classpath.append(classpath);
+        }
+    }
 
-	public void setClasspathref(Reference r) {
-		createClasspath().setRefid(r);
-	}
+    public Path getClasspath() {
+        return classpath;
+    }
 
-	public void setDevice(String device) {
-		this.device = device;
-	}
+    public Path createClasspath() {
+        if (classpath == null) {
+            classpath = new Path(getProject());
+        }
+        return classpath.createPath();
+    }
 
-	public void setHeapsize(String heapsize) {
-		this.heapsize = heapsize;
-	}
+    public void setClasspathref(Reference r) {
+        createClasspath().setRefid(r);
+    }
 
-	public void setJadFile(File jadFile) {
-		this.jadFile = jadFile;
-	}
-	
-	public void setEncoding(String encoding) {
-	    this.encoding = encoding;
-	}
+    public void setDevice(String device) {
+        this.device = device;
+    }
 
-	public void setWait(boolean wait) {
-		this.wait = wait;
-	}
+    public void setHeapsize(String heapsize) {
+        this.heapsize = heapsize;
+    }
+
+    public void setJadFile(File jadFile) {
+        this.jadFile = jadFile;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public void setWait(boolean wait) {
+        this.wait = wait;
+    }
 
     public void setDebugAddress(String address) {
         this.debugAddress = address;
@@ -154,21 +146,21 @@ public class WtkRun extends Task {
     public void setDebug(String address) {
         this.debugAddress = address;
     }
-    
+
     public void setTrace(String trace) {
         this.trace = trace;
     }
-    
-	public void init() throws BuildException {
-		super.init();
-		utility = Utility.getInstance(getProject(), this);
+
+    public void init() throws BuildException {
+        super.init();
+        utility = Utility.getInstance(getProject(), this);
         condition = new Conditional(getProject());
-	}
+    }
 
     public void setIf(String s) {
         condition.setIf(s);
     }
-    
+
     public void setUnless(String s) {
         condition.setUnless(s);
     }
@@ -176,48 +168,45 @@ public class WtkRun extends Task {
     public boolean isActive() {
         return condition.isActive();
     }
-    
-    public void setJadDirectory(File jadDirectory)
-    {
-		m_jadDirectory = jadDirectory;
+
+    public void setJadDirectory(File jadDirectory) {
+        m_jadDirectory = jadDirectory;
     }
 
     private void executeSiemensEmulator(String device) throws BuildException {
         String emulator;
-        
+
         if (device != null) {
-	        emulator = utility.getWtkRelative("emulators/" + device + "/bin/emulator.exe");
+            emulator = utility.getWtkRelative("emulators/" + device + "/bin/emulator.exe");
 
-	        if (!new File(emulator).exists()) {
-	            emulator = utility.getWtkRelative(device + "emulators/bin/mmiu35.exe");
-	        }
+            if (!new File(emulator).exists()) {
+                emulator = utility.getWtkRelative(device + "emulators/bin/mmiu35.exe");
+            }
 
-	        if (!new File(emulator).exists()) {
-	            throw new BuildException("Siemens " + device + " emulator not found.");
-	        }
+            if (!new File(emulator).exists()) {
+                throw new BuildException("Siemens " + device + " emulator not found.");
+            }
+        } else {
+            emulator = utility.getWtkRelative("/bin/emulator.exe");
+
+            if (!new File(emulator).exists()) {
+                throw new BuildException("Siemens emulator not found.");
+            }
         }
-        else {
-	        emulator = utility.getWtkRelative("/bin/emulator.exe");
 
-	        if (!new File(emulator).exists()) {
-	            throw new BuildException("Siemens emulator not found.");
-	        }
-        }
-        
         emulator = utility.getQuotedName(new File(emulator));
 
         JadFile jad = new JadFile();
         try {
             jad.load(jadFile.getAbsolutePath(), encoding);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BuildException("Unable to load JAD file", ex);
         }
-        
+
         //File jarFile = new File(jadFile.getParentFile(), jad.getValue("MIDlet-Jar-URL"));
-                
+
         String arguments =
-            (debugAddress != null ? " /dj " : " /sj ") + utility.getQuotedName(jadFile);
+                (debugAddress != null ? " /dj " : " /sj ") + utility.getQuotedName(jadFile);
 
         if (classpath != null) {
             arguments = arguments + " -classpath \"" + classpath + "\"";
@@ -226,9 +215,9 @@ public class WtkRun extends Task {
         if (trace != null) {
             arguments = arguments + " /tracing";
         }
-                
+
         log("Running : " + emulator + " " + arguments);
-        
+
         try {
             Process proc = Runtime.getRuntime().exec(emulator + " " + arguments);
 
@@ -238,18 +227,16 @@ public class WtkRun extends Task {
                     throw new BuildException("Emulation failed (result=" + proc.exitValue() + ")");
                 }
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BuildException("Emulation failed", ex);
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             throw new BuildException("Emulation failed", ex);
         }
     }
 
     private void executeMPowerEmulator(String device) throws BuildException {
         String arguments = utility.getQuotedName(jadFile);
-                
+
         log("Arguments : " + arguments, Project.MSG_VERBOSE);
 
         Java java = new Java();
@@ -261,21 +248,21 @@ public class WtkRun extends Task {
         java.executeJava();
     }
 
-    private void executeDefaultEmulator(String device) throws BuildException {       
+    private void executeDefaultEmulator(String device) throws BuildException {
         String emulator = utility.getWtkRelative(wait ? "bin/emulator.exe" : "bin/emulatorw.exe");
         if (!new File(emulator).exists()) {
             emulator = utility.getWtkRelative("bin/emulator");
-            
+
         }
 
         emulator = utility.getQuotedName(new File(emulator));
-        
+
         String arguments =
-                " -Xdescriptor:" + utility.getQuotedName(jadFile) ;
-        if(heapsize != null && heapsize.length()>0){
+                " -Xdescriptor:" + utility.getQuotedName(jadFile);
+        if (heapsize != null && heapsize.length() > 0) {
             arguments += " -Xheapsize:" + heapsize;
         }
-        if (device != null && device.length()>0){
+        if (device != null && device.length() > 0) {
             arguments += " -Xdevice:" + device;
         }
         if (classpath != null) {
@@ -298,12 +285,11 @@ public class WtkRun extends Task {
         }
 
         log("Running : " + emulator + " " + arguments);
-        
-        if (m_eclipseDebugger)
-        {
-        	startEclipseRemoteDebugger();
+
+        if (m_eclipseDebugger) {
+            startEclipseRemoteDebugger();
         }
-        
+
 
         try {
             Process proc = Runtime.getRuntime().exec(emulator + " " + arguments);
@@ -311,88 +297,76 @@ public class WtkRun extends Task {
             if (wait) {
                 new Thread(new Redirector(proc.getInputStream())).start();
                 new Thread(new Redirector(proc.getErrorStream())).start();
-                
+
                 proc.waitFor();
                 if (proc.exitValue() != 0) {
                     throw new BuildException("Emulation failed (result=" + proc.exitValue() + ")");
                 }
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BuildException("Emulation failed", ex);
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             throw new BuildException("Emulation failed", ex);
         }
     }
-    
-	private void startEclipseRemoteDebugger()
-	{
-		try
-		{
-			InetAddress address = InetAddress.getByName("localhost");
-			int port = 60001;
-			String srcPath = m_sourcePath == null ? "" : m_sourcePath;
-			log("Launching eclispe debugger : (address="+ debugAddress+", source path="+srcPath+") -> eclipse("+ address + ":" + port+")");
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			DataOutputStream dout = new DataOutputStream(bout);
-			dout.writeUTF(debugAddress);
-			dout.writeUTF(srcPath);
-			dout.flush();
-			byte buf[] = bout.toByteArray();
-			DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
-			DatagramSocket socket = new DatagramSocket();
-			socket.send(packet);
-		} 
-		catch (Exception e)
-		{
-			log(e.getClass().getName() + " : " + e.getMessage());
-		}
-	}
 
-	public void execute() throws BuildException {
-        if (!isActive()) return;
-        
-        if (m_jadDirectory != null)
-        {
-        	jadFile = new JadSelector(m_jadDirectory).selectJad();
-        	if (jadFile == null)
-        	{
-        		throw new BuildException("No jad selected");
-        	}
-        	
-        	log("Selected jad : " + jadFile);
+    private void startEclipseRemoteDebugger() {
+        try {
+            InetAddress address = InetAddress.getByName("localhost");
+            int port = 60001;
+            String srcPath = m_sourcePath == null ? "" : m_sourcePath;
+            log("Launching eclispe debugger : (address=" + debugAddress + ", source path=" + srcPath + ") -> eclipse(" + address + ":" + port + ")");
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            DataOutputStream dout = new DataOutputStream(bout);
+            dout.writeUTF(debugAddress);
+            dout.writeUTF(srcPath);
+            dout.flush();
+            byte buf[] = bout.toByteArray();
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
+            DatagramSocket socket = new DatagramSocket();
+            socket.send(packet);
+        } catch (Exception e) {
+            log(e.getClass().getName() + " : " + e.getMessage());
         }
-        
+    }
+
+    public void execute() throws BuildException {
+        if (!isActive()) return;
+
+        if (m_jadDirectory != null) {
+            jadFile = new JadSelector(m_jadDirectory).selectJad();
+            if (jadFile == null) {
+                throw new BuildException("No jad selected");
+            }
+
+            log("Selected jad : " + jadFile);
+        }
+
         if ("Siemens".equals(device) || utility.getToolkitType() == Utility.TOOLKIT_SIEMENS) {
             if ("Siemens".equals(device)) {
                 device = null;
             }
-            
+
             log("Running " + jadFile + " on Siemens " + (device == null ? "phone" : device));
             executeSiemensEmulator(device);
-        }
-         else if (utility.getEmulator().endsWith(".jar")) {
+        } else if (utility.getEmulator().endsWith(".jar")) {
             log("Running " + jadFile + " on java emulator");
             executeMPowerEmulator(device);
-        }
-        else {
+        } else {
             if (device == null) {
                 device = utility.getDevice();
             }
-            
-			log("Running " + jadFile + " on " + device);
+
+            log("Running " + jadFile + " on " + device);
             executeDefaultEmulator(device);
         }
     }
 
-	public void setEclipseDebugger(boolean startEclipseRemoteDebugger)
-	{
-		m_eclipseDebugger = startEclipseRemoteDebugger;
-	}
+    public void setEclipseDebugger(boolean startEclipseRemoteDebugger) {
+        m_eclipseDebugger = startEclipseRemoteDebugger;
+    }
 
-	public void setSourcePath(String sourcePath)
-	{
-		m_sourcePath = sourcePath;
-	}
+    public void setSourcePath(String sourcePath) {
+        m_sourcePath = sourcePath;
+    }
 }

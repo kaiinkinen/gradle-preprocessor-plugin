@@ -20,89 +20,91 @@
  */
 package de.pleumann.antenna.post;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Vector;
 
 public class ClassFile {
 
-	private class Entry {
-		int tag;
-		byte[] data;
+    private class Entry {
+        int tag;
+        byte[] data;
 
-		Entry(int tag, byte[] data) {
-			this.tag = tag;
-			this.data = data;
-		}
-	}
+        Entry(int tag, byte[] data) {
+            this.tag = tag;
+            this.data = data;
+        }
+    }
 
-	private static final int[] sizes =
-		new int[] { 0, 0, 0, 4, 4, 8, 8, 2, 2, 4, 4, 4, 4 };
+    private static final int[] sizes =
+            new int[]{0, 0, 0, 4, 4, 8, 8, 2, 2, 4, 4, 4, 4};
 
-	private Vector classes = new Vector();
+    private Vector classes = new Vector();
 
-	public ClassFile(InputStream input) throws IOException {
-		DataInputStream data = new DataInputStream(input);
+    public ClassFile(InputStream input) throws IOException {
+        DataInputStream data = new DataInputStream(input);
 
-		int[] magic = new int[4];
-		magic[0] = data.readUnsignedByte();
-		magic[1] = data.readUnsignedByte();
-		magic[2] = data.readUnsignedByte();
-		magic[3] = data.readUnsignedByte();
+        int[] magic = new int[4];
+        magic[0] = data.readUnsignedByte();
+        magic[1] = data.readUnsignedByte();
+        magic[2] = data.readUnsignedByte();
+        magic[3] = data.readUnsignedByte();
 
-		if ((magic[0] != 0xCA)
-			|| (magic[1] != 0xFE)
-			|| (magic[2] != 0xBA)
-			|| (magic[3] != 0xBE)) {
-			throw new IOException("Wrong magic - not a class file");
-		}
+        if ((magic[0] != 0xCA)
+                || (magic[1] != 0xFE)
+                || (magic[2] != 0xBA)
+                || (magic[3] != 0xBE)) {
+            throw new IOException("Wrong magic - not a class file");
+        }
 
-		data.skip(4);
+        data.skip(4);
 
-		int numConstants = data.readUnsignedShort();
+        int numConstants = data.readUnsignedShort();
 
-		Vector entries = new Vector();
+        Vector entries = new Vector();
 
-		entries.add(new Entry(0, new byte[0]));
+        entries.add(new Entry(0, new byte[0]));
 
-		for (int i = 1; i < numConstants; i++) {
-			int tag = data.readUnsignedByte();
+        for (int i = 1; i < numConstants; i++) {
+            int tag = data.readUnsignedByte();
 
-			int size = sizes[tag];
-			if (size == 0)
-				size = data.readUnsignedShort();
+            int size = sizes[tag];
+            if (size == 0)
+                size = data.readUnsignedShort();
 
-			byte[] bytes = new byte[size];
-			data.readFully(bytes);
+            byte[] bytes = new byte[size];
+            data.readFully(bytes);
 
-			entries.add(new Entry(tag, bytes));
+            entries.add(new Entry(tag, bytes));
 
-			if ((tag == 5) || (tag == 6)) {
-				entries.add(new Entry(tag, new byte[0]));
-				i++;
-			}
-		}
+            if ((tag == 5) || (tag == 6)) {
+                entries.add(new Entry(tag, new byte[0]));
+                i++;
+            }
+        }
 
-		for (int i = 1; i < entries.size(); i++) {
-			Entry entry = (Entry) entries.elementAt(i);
+        for (int i = 1; i < entries.size(); i++) {
+            Entry entry = (Entry) entries.elementAt(i);
 
-			if (entry.tag == 7) {
-				int hi = entry.data[0] & 0xFF;
-				int lo = entry.data[1] & 0xFF;
-				Entry name = (Entry) entries.elementAt(hi << 8 | lo);
+            if (entry.tag == 7) {
+                int hi = entry.data[0] & 0xFF;
+                int lo = entry.data[1] & 0xFF;
+                Entry name = (Entry) entries.elementAt(hi << 8 | lo);
 
                 String cls = new String(name.data).replace('/', '.');
-				if (!cls.startsWith("["))
-					classes.addElement(cls);
-			}
+                if (!cls.startsWith("["))
+                    classes.addElement(cls);
+            }
 
-		}
-	}
+        }
+    }
 
-	public int getRequiredClassCount() {
-		return classes.size();
-	}
+    public int getRequiredClassCount() {
+        return classes.size();
+    }
 
-	public String getRequiredClass(int index) {
-		return (String) classes.elementAt(index);
-	}
+    public String getRequiredClass(int index) {
+        return (String) classes.elementAt(index);
+    }
 }

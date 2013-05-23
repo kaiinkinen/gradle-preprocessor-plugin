@@ -29,7 +29,7 @@ import antenna.preprocessor.PreprocessorException;
  */
 class PreprocessorLine {
 
-    public static final String[] types = { "VISIBLE(0)", "HIDDEN(1)", "DEFINE(2)", "UNDEF(3)", "IFDEF(4)", "IFNDEF(5)",
+    public static final String[] types = {"VISIBLE(0)", "HIDDEN(1)", "DEFINE(2)", "UNDEF(3)", "IFDEF(4)", "IFNDEF(5)",
             "ELSE(6)", "ENDIF(7)", "ELIFDEF(8)", "ELIFNDEF(9)", "IF(10)", "ELIF(11)", "INCLUDE(12)", "ENDINCLUDE(13)"};
 
     /**
@@ -134,11 +134,9 @@ class PreprocessorLine {
     /**
      * Creates a new preprocessor line, automatically analyzing the given source
      * line.
-     * 
-     * @param s
-     *            The line to process
-     * @throws PreprocessorException
-     *             if an unknown directive is used
+     *
+     * @param s The line to process
+     * @throws PreprocessorException if an unknown directive is used
      */
     public PreprocessorLine(String s) throws PreprocessorException {
         processLine(s);
@@ -159,8 +157,7 @@ class PreprocessorLine {
 
         if (s.startsWith("//#")) {
             type = parseCommand(s);
-        }
-        else {
+        } else {
             type = TYPE_VISIBLE;
             text = s;
         }
@@ -174,12 +171,10 @@ class PreprocessorLine {
         if (s.startsWith("//# ") || s.startsWith("//#\t")) {
             text = s.substring(4);
             return TYPE_HIDDEN;
-        }
-        else if (s.equals("//#")) {
+        } else if (s.equals("//#")) {
             text = "";
             return TYPE_HIDDEN;
-        }
-        else {
+        } else {
             /**
              * Prevent problem when lines end with a TAB character.
              */
@@ -191,48 +186,35 @@ class PreprocessorLine {
             if (p != -1) {
                 text = s.substring(0, p);
                 args = s.substring(p + 1).trim();
-            }
-            else {
+            } else {
                 text = s;
             }
 
             if ("//#define".equals(text)) {
                 return TYPE_DEFINE;
-            }
-            else if ("//#undef".equals(text)) {
+            } else if ("//#undef".equals(text)) {
                 return TYPE_UNDEF;
-            }
-            else if ("//#ifdef".equals(text)) {
+            } else if ("//#ifdef".equals(text)) {
                 return TYPE_IFDEF;
-            }
-            else if ("//#ifndef".equals(text)) {
+            } else if ("//#ifndef".equals(text)) {
                 return TYPE_IFNDEF;
-            }
-            else if ("//#elifdef".equals(text)) {
+            } else if ("//#elifdef".equals(text)) {
                 return TYPE_ELIFDEF;
-            }
-            else if ("//#elifndef".equals(text)) {
+            } else if ("//#elifndef".equals(text)) {
                 return TYPE_ELIFNDEF;
-            }
-            else if ("//#else".equals(text)) {
+            } else if ("//#else".equals(text)) {
                 return TYPE_ELSE;
-            }
-            else if ("//#endif".equals(text)) {
+            } else if ("//#endif".equals(text)) {
                 return TYPE_ENDIF;
-            }
-            else if ("//#if".equals(text)) {
+            } else if ("//#if".equals(text)) {
                 return TYPE_IF;
-            }
-            else if ("//#elif".equals(text)) {
+            } else if ("//#elif".equals(text)) {
                 return TYPE_ELIF;
-            }
-            else if ("//#include".equals(text)) {
+            } else if ("//#include".equals(text)) {
                 return TYPE_INCLUDE;
-            }
-            else if ("//#endinclude".equals(text)) {
+            } else if ("//#endinclude".equals(text)) {
                 return TYPE_ENDINCLUDE;
-            }
-            else {
+            } else {
                 throw new PreprocessorException("Unknown directive \"" + text + "\"");
             }
         }

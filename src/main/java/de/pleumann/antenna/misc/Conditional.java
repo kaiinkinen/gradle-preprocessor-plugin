@@ -31,19 +31,19 @@ import org.apache.tools.ant.Project;
 public class Conditional {
 
     private Project project;
-        
+
     private String ifExpr;
-    
+
     private String unlessExpr;
-    
+
     public Conditional(Project project) {
         this.project = project;
     }
-    
+
     public void setIf(String s) {
         ifExpr = s;
     }
-    
+
     public void setUnless(String s) {
         unlessExpr = s;
     }
@@ -56,7 +56,7 @@ public class Conditional {
         if (unlessExpr != null && project.getProperty(unlessExpr) != null) {
             return false;
         }
-        
+
         return true;
     }
 }

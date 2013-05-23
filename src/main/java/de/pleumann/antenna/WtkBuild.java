@@ -20,130 +20,122 @@
  */
 package de.pleumann.antenna;
 
-import java.io.File;
-
+import de.pleumann.antenna.misc.Conditional;
+import de.pleumann.antenna.misc.Utility;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Path;
 
-import de.pleumann.antenna.misc.Conditional;
-import de.pleumann.antenna.misc.Utility;
+import java.io.File;
 
 public class WtkBuild extends Javac {
 
-	private Conditional condition;
+    private Conditional condition;
 
-	private Utility utility;
+    private Utility utility;
 
-	private boolean preverify = true;
+    private boolean preverify = true;
 
-	private boolean cldc = true;
+    private boolean cldc = true;
 
-	private int flags = 0;
-	
-	public void setPreverify(boolean preverify) {
-		this.preverify = preverify;
-	}
+    private int flags = 0;
 
-	public void setCldc(boolean on) {
-		this.cldc = on;
-	}
+    public void setPreverify(boolean preverify) {
+        this.preverify = preverify;
+    }
 
-	public void setNonative(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NONATIVE;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NONATIVE;
-		}
-	}
-	
-	public void setNofloat(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NOFLOAT;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NOFLOAT;
-		}
-	}
-	
-	public void setNofinalize(boolean b) {
-		if (b) {
-			flags = flags | Utility.PREVERIFY_NOFINALIZE;
-		}
-		else  {
-			flags = flags & ~Utility.PREVERIFY_NOFINALIZE;
-		}
-	}
-	
-	public void init() throws BuildException {
-		super.init();
+    public void setCldc(boolean on) {
+        this.cldc = on;
+    }
 
-		utility = Utility.getInstance(getProject(), this);
-		condition = new Conditional(getProject());
+    public void setNonative(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NONATIVE;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NONATIVE;
+        }
+    }
 
-		setTarget("1.1");
-		setSource("1.2");
-		setDebug(true);
-	}
+    public void setNofloat(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NOFLOAT;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NOFLOAT;
+        }
+    }
 
-	public void setIf(String s) {
-		condition.setIf(s);
-	}
+    public void setNofinalize(boolean b) {
+        if (b) {
+            flags = flags | Utility.PREVERIFY_NOFINALIZE;
+        } else {
+            flags = flags & ~Utility.PREVERIFY_NOFINALIZE;
+        }
+    }
 
-	public void setUnless(String s) {
-		condition.setUnless(s);
-	}
+    public void init() throws BuildException {
+        super.init();
 
-	public boolean isActive() {
-		return condition.isActive();
-	}
+        utility = Utility.getInstance(getProject(), this);
+        condition = new Conditional(getProject());
 
-	public void execute() throws BuildException {
-		if (!isActive())
-			return;
+        setTarget("1.1");
+        setSource("1.2");
+        setDebug(true);
+    }
 
-		File tmpDir = utility.getTempDir();
+    public void setIf(String s) {
+        condition.setIf(s);
+    }
 
-		try {
+    public void setUnless(String s) {
+        condition.setUnless(s);
+    }
+
+    public boolean isActive() {
+        return condition.isActive();
+    }
+
+    public void execute() throws BuildException {
+        if (!isActive())
+            return;
+
+        File tmpDir = utility.getTempDir();
+
+        try {
             if (utility.getToolkitType() == Utility.TOOLKIT_MPOWER) {
                 String bcp = utility.getMidpApi();
                 if (getClasspath() == null) {
                     setClasspath(new Path(getProject(), bcp));
-                }
-                else {
+                } else {
                     getClasspath().add(new Path(getProject(), bcp));
                 }
-            }
-            else if (getBootclasspath() == null) {
-				String bcp = utility.getMidpApi();
+            } else if (getBootclasspath() == null) {
+                String bcp = utility.getMidpApi();
                 setBootclasspath(new Path(getProject(), bcp));
-			}
+            }
 
-			File origDest = getDestdir();
-			File tempDest = new File(tmpDir + "/tmpclasses");
+            File origDest = getDestdir();
+            File tempDest = new File(tmpDir + "/tmpclasses");
 
-			if (preverify) {
-				setDestdir(tempDest);
-				tempDest.mkdir();
-			}
+            if (preverify) {
+                setDestdir(tempDest);
+                tempDest.mkdir();
+            }
 
-			try {
-				super.execute();
-			}
-			finally {
-				setDestdir(origDest);
-			}
+            try {
+                super.execute();
+            } finally {
+                setDestdir(origDest);
+            }
 
-			if (preverify) {
-				String cp = getBootclasspath() + File.pathSeparator + getClasspath() + File.pathSeparator;
+            if (preverify) {
+                String cp = getBootclasspath() + File.pathSeparator + getClasspath() + File.pathSeparator;
 
-				utility.preverify(tempDest, origDest, cp, cldc, flags);
-			}
-		}
-		finally {
-			utility.delete(tmpDir);
-		}
-	}
+                utility.preverify(tempDest, origDest, cp, cldc, flags);
+            }
+        } finally {
+            utility.delete(tmpDir);
+        }
+    }
 
 }
