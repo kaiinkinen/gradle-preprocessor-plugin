@@ -5,11 +5,12 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.api.Project
 import static org.junit.Assert.*
 
-class GreetingTaskTest {
+class PreprocessorPluginTest {
     @Test
-    public void canAddTaskToProject() {
+    public void greeterPluginAddsGreetingTaskToProject() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('greeting', type: GreetingTask)
-        assertTrue(task instanceof GreetingTask)
+        project.apply plugin: 'greeting'
+
+        assertTrue(project.tasks.hello instanceof PreprocessorTask)
     }
 }
