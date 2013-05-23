@@ -28,3 +28,10 @@ uploadArchives {
         }
     }
 }
+
+task preprocess(type: PreprocessorTask) {
+    source: sourceSets.main.allSource.srcDirs
+    destination: sourceSets.main.output.asPath()
+}
+
+

@@ -5,6 +5,6 @@ import org.gradle.api.Plugin
 
 class PreprocessorPlugin implements Plugin<Project> {
     void apply(Project target) {
-        target.task('hello', type: PreprocessorTask)
+        target.task('preprocess', type: PreprocessorTask)
     }
 }

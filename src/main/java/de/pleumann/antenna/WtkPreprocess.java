@@ -77,7 +77,7 @@ public class WtkPreprocess extends MatchingTask {
     private Vector m_symbolsFile = new Vector();
 
     /**
-     * Preprocessor debub level
+     * Preprocessor debug level
      */
     private String m_debugLevel;
 
