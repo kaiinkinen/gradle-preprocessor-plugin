@@ -25,6 +25,10 @@ uploadArchives {
     repositories {
         mavenDeployer {
             pom.project {
+                description {
+                   'Preprocessor plugin for gradle. Uses the antenna preprocesor, without needing a WTK installation to run the processor'
+                }
+                url 'https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
