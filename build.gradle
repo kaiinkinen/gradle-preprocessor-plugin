@@ -21,13 +21,16 @@ dependencies {
 group = 'org.inkinen'
 version = '0.1-SNAPSHOT'
 
+compileJava {
+    options.encoding = 'UTF-8'
+    //options.compilerArgs = ['-Xlint', '-Xlint:-serial', '-Xlint:-path', '-Xlint:deprecation', '-Xlint:unchecked']
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
             pom.project {
-                description {
-                   'Preprocessor plugin for gradle. Uses the antenna preprocesor, without needing a WTK installation to run the processor'
-                }
+                description 'Preprocessor plugin for gradle. Uses the antenna preprocesor, without needing a WTK installation to run the processor'
                 url 'https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
                 licenses {
                     license {
