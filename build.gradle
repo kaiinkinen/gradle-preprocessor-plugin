@@ -1,12 +1,13 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 dependencies {
     compile gradleApi()
     groovy localGroovy()
 }
 
-apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -26,12 +27,42 @@ compileJava {
     //options.compilerArgs = ['-Xlint', '-Xlint:-serial', '-Xlint:-path', '-Xlint:deprecation', '-Xlint:unchecked']
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
+            repository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+                // Credentials need to go to ~/.gradle/gradle.properties
+                // There it is possible to define the variables, which are being used here
+                authentication(userName: mavenUser, password: mavenPassword)
+            }
             pom.project {
                 description 'Preprocessor plugin for gradle. Uses the antenna preprocesor, without needing a WTK installation to run the processor'
                 url 'https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
+                scm {
+                    url 'scm:https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
+                    connection 'scm:https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
+                    developerConnection 'scm:https://github.com/kaiinkinen/gradle-preprocessor-plugin.git'
+                }
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -39,8 +70,13 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
+                developers {
+                    developer {
+                        id 'kaiinkinen'
+                        name 'Kai Inkinen'
+                    }
+                }
             }
         }
     }
 }
-
