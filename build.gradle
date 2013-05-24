@@ -50,10 +50,15 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                // Credentials need to go to ~/.gradle/gradle.properties
-                // There it is possible to define the variables, which are being used here
-                authentication(userName: mavenUser, password: mavenPassword)
+            if (System.getProperty('releaseLocal').equals('true')) {
+                repository(url: '../repo')
+            } else if (System.getProperty('releaseUpload').equals('true') && version.endsWith('-SNAPSHOT')) {
+                // Only upload when we really mean to, i.e. specify releaseUpload=true
+                repository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+                    // Credentials need to go to ~/.gradle/gradle.properties
+                    // There it is possible to define the variables, which are being used here
+                    authentication(userName: mavenUser, password: mavenPassword)
+                }
             }
             pom.project {
                 description 'Preprocessor plugin for gradle. Uses the antenna preprocesor, without needing a WTK installation to run the processor'
