@@ -12,8 +12,6 @@ class PreprocessorPluginTest {
         Project project = ProjectBuilder.builder().build()
         project.apply plugin: 'preprocessor'
 
-
-
         assertTrue(project.tasks.preprocess instanceof PreprocessorTask)
     }
 }
