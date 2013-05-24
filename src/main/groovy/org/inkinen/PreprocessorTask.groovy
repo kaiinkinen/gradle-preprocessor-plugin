@@ -5,6 +5,7 @@ import groovy.io.FileType
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
+import org.apache.tools.ant.util.FileUtils
 
 class PreprocessorTask extends DefaultTask {
 
@@ -31,12 +32,12 @@ class PreprocessorTask extends DefaultTask {
             pp.addSymbols(symbols)
         }
 
+        final def antFileUtils = FileUtils.getFileUtils()
         for (File dir : source) {
             dir.eachFileRecurse(FileType.FILES) {
-                def path = it.getPath()
-                def output = path.replaceFirst(dir.path, destination.path)
+                String relativeFile = antFileUtils.removeLeadingPath(dir, it)
+                def outputFile = new File(destination.getCanonicalPath() + File.separator + relativeFile)
 
-                def outputFile = new File(output)
                 outputFile.getParentFile().mkdirs()
                 outputFile.createNewFile()
 
@@ -45,10 +46,9 @@ class PreprocessorTask extends DefaultTask {
 
                 pp.preprocess(is, os, encoding)
 
+                is.close()
+                os.close()
             }
-
         }
-
-
     }
 }
