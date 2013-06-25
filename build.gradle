@@ -19,7 +19,7 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
-group = 'org.inkinen'
+group = 'com.github.kaiinkinen'
 version = '0.1-SNAPSHOT'
 
 compileJava {
